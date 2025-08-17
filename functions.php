@@ -267,6 +267,15 @@ function lunart_custom_post_types() {
 add_action('init', 'lunart_custom_post_types');
 
 /**
+ * Flush rewrite rules on theme activation
+ */
+function lunart_flush_rewrite_rules() {
+    lunart_custom_post_types();
+    flush_rewrite_rules();
+}
+add_action('after_switch_theme', 'lunart_flush_rewrite_rules');
+
+/**
  * Add custom meta boxes for gallery items
  */
 function lunart_add_gallery_meta_boxes() {
@@ -280,6 +289,21 @@ function lunart_add_gallery_meta_boxes() {
     );
 }
 add_action('add_meta_boxes', 'lunart_add_gallery_meta_boxes');
+
+/**
+ * Add custom meta boxes for services
+ */
+function lunart_add_service_meta_boxes() {
+    add_meta_box(
+        'service_details',
+        __('Detalji Usluge', 'lunart'),
+        'lunart_service_meta_box_callback',
+        'service',
+        'normal',
+        'high'
+    );
+}
+add_action('add_meta_boxes', 'lunart_add_service_meta_boxes');
 
 function lunart_gallery_meta_box_callback($post) {
     wp_nonce_field('lunart_save_gallery_meta', 'lunart_gallery_meta_nonce');
@@ -336,6 +360,264 @@ function lunart_save_gallery_meta($post_id) {
     }
 }
 add_action('save_post', 'lunart_save_gallery_meta');
+
+/**
+ * Service meta box callback
+ */
+function lunart_service_meta_box_callback($post) {
+    wp_nonce_field('lunart_save_service_meta', 'lunart_service_meta_nonce');
+
+    $icon_name = get_post_meta($post->ID, '_service_icon_name', true);
+    $icon_color = get_post_meta($post->ID, '_service_icon_color', true);
+    
+    // Taksativne opcije - dinamički input polja
+    $taksativne_opcije = get_post_meta($post->ID, '_taksativne_opcije', true);
+    if (!is_array($taksativne_opcije)) {
+        $taksativne_opcije = array();
+    }
+
+    echo '<div class="service-meta-box">';
+    
+    // Icon selection
+    echo '<h3>Izbor Ikonice</h3>';
+    echo '<table class="form-table">';
+    echo '<tr>';
+    echo '<th><label for="icon_name">Ikonica</label></th>';
+    echo '<td>';
+    echo '<select id="icon_name" name="icon_name" class="regular-text">';
+    echo '<option value="">Izaberite ikonicu</option>';
+    
+    // Heroicons biblioteka
+    $heroicons = array(
+        'light-bulb' => '💡 Lampica (Ideja)',
+        'star' => '⭐ Zvezda',
+        'book-open' => '📖 Knjiga',
+        'image' => '🖼️ Slika',
+        'search' => '🔍 Pretraga',
+        'shield-check' => '🛡️ Zaštita',
+        'paint-brush' => '🎨 Četka',
+        'scissors' => '✂️ Makaze',
+        'eye' => '👁️ Oko',
+        'heart' => '❤️ Srce',
+        'leaf' => '🍃 List',
+        'moon' => '🌙 Mesec',
+        'sun' => '☀️ Sunce',
+        'home' => '🏠 Kuća',
+        'user' => '👤 Korisnik',
+        'cog' => '⚙️ Zupčanik',
+        'wrench' => '🔧 Ključ',
+        'hammer' => '🔨 Čekić',
+        'truck' => '🚚 Kamion',
+        'phone' => '📞 Telefon'
+    );
+    
+    foreach ($heroicons as $icon_key => $icon_label) {
+        $selected = ($icon_name == $icon_key) ? 'selected' : '';
+        echo '<option value="' . esc_attr($icon_key) . '" ' . $selected . '>' . esc_html($icon_label) . '</option>';
+    }
+    echo '</select>';
+    echo '<p class="description">Izaberite ikonicu iz Heroicons biblioteke</p>';
+    echo '</td>';
+    echo '</tr>';
+    echo '<tr>';
+    echo '<th><label for="icon_color">Boja Ikonice</label></th>';
+    echo '<td><select id="icon_color" name="icon_color">';
+    echo '<option value="primary"' . selected($icon_color, 'primary', false) . '>Primary</option>';
+    echo '<option value="accent"' . selected($icon_color, 'accent', false) . '>Accent</option>';
+    echo '<option value="secondary"' . selected($icon_color, 'secondary', false) . '>Secondary</option>';
+    echo '</select></td>';
+    echo '</tr>';
+    echo '</table>';
+    
+    // Dinamičke taksativne opcije
+    echo '<h3>Taksativne Opcije</h3>';
+    echo '<div id="taksativne-opcije-container">';
+    echo '<p class="description">Dodajte usluge koje se pružaju. Možete dodati proizvoljan broj opcija.</p>';
+    
+    if (!empty($taksativne_opcije)) {
+        foreach ($taksativne_opcije as $index => $opcija) {
+            echo '<div class="taksativna-opcija-row">';
+            echo '<input type="text" name="taksativne_opcije[]" value="' . esc_attr($opcija) . '" class="regular-text" placeholder="Unesite naziv usluge">';
+            echo '<button type="button" class="button remove-opcija">Ukloni</button>';
+            echo '</div>';
+        }
+    }
+    
+    echo '</div>';
+    echo '<button type="button" class="button add-opcija">+ Dodaj Novu Opciju</button>';
+    
+    echo '</div>';
+    
+    // JavaScript za dinamičko dodavanje/uklanjanje opcija
+    echo '<script>
+    jQuery(document).ready(function($) {
+        $(".add-opcija").click(function() {
+            var newRow = \'<div class="taksativna-opcija-row">\' +
+                         \'<input type="text" name="taksativne_opcije[]" value="" class="regular-text" placeholder="Unesite naziv usluge">\' +
+                         \'<button type="button" class="button remove-opcija">Ukloni</button>\' +
+                         \'</div>\';
+            $("#taksativne-opcije-container").append(newRow);
+        });
+        
+        $(document).on("click", ".remove-opcija", function() {
+            $(this).closest(".taksativna-opcija-row").remove();
+        });
+    });
+    </script>';
+    
+    echo '<style>
+    .taksativna-opcija-row {
+        margin-bottom: 10px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    .taksativna-opcija-row input {
+        flex: 1;
+    }
+    .remove-opcija {
+        background: #dc3232 !important;
+        border-color: #dc3232 !important;
+        color: white !important;
+    }
+    .add-opcija {
+        margin-top: 10px !important;
+    }
+    </style>';
+}
+
+/**
+ * Save service meta data
+ */
+function lunart_save_service_meta($post_id) {
+    if (!isset($_POST['lunart_service_meta_nonce'])) {
+        return;
+    }
+
+    if (!wp_verify_nonce($_POST['lunart_service_meta_nonce'], 'lunart_save_service_meta')) {
+        return;
+    }
+
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+
+    if (isset($_POST['post_type']) && 'service' == $_POST['post_type']) {
+        if (!current_user_can('edit_post', $post_id)) {
+            return;
+        }
+    }
+
+    // Save icon data
+    if (isset($_POST['icon_name'])) {
+        update_post_meta($post_id, '_service_icon_name', sanitize_text_field($_POST['icon_name']));
+    }
+    if (isset($_POST['icon_color'])) {
+        update_post_meta($post_id, '_service_icon_color', sanitize_text_field($_POST['icon_color']));
+    }
+
+    // Save dinamičke taksativne opcije
+    if (isset($_POST['taksativne_opcije']) && is_array($_POST['taksativne_opcije'])) {
+        $taksativne_opcije = array_filter(array_map('sanitize_text_field', $_POST['taksativne_opcije']));
+        update_post_meta($post_id, '_taksativne_opcije', $taksativne_opcije);
+    }
+}
+add_action('save_post', 'lunart_save_service_meta');
+
+/**
+ * Helper function to get service icon HTML
+ */
+function lunart_get_service_icon_html($post_id = null) {
+    if (!$post_id) {
+        $post_id = get_the_ID();
+    }
+    
+    $icon_name = get_post_meta($post_id, '_service_icon_name', true);
+    $icon_color = get_post_meta($post_id, '_service_icon_color', true);
+    
+    if (!$icon_name) {
+        return '';
+    }
+    
+    $color_class = $icon_color ? 'text-' . $icon_color : 'text-primary';
+    
+    // Heroicons biblioteka
+    $heroicons_svg = lunart_get_heroicon_svg($icon_name);
+    
+    if (!$heroicons_svg) {
+        return '';
+    }
+    
+    return sprintf(
+        '<div class="service-icon">
+            <svg class="h-8 w-8 %s" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                %s
+            </svg>
+        </div>',
+        esc_attr($color_class),
+        $heroicons_svg
+    );
+}
+
+/**
+ * Get Heroicon SVG code by icon name
+ */
+function lunart_get_heroicon_svg($icon_name) {
+    $heroicons = array(
+        'light-bulb' => '<path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 1 14 18.469V19a2 2 0 0 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>',
+        'star' => '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>',
+        'book-open' => '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>',
+        'image' => '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21,15 16,10 5,21"></polyline>',
+        'search' => '<circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path>',
+        'shield-check' => '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path>',
+        'paint-brush' => '<path d="M18.37 2.63 14 7l-1.59-1.59a2 2 0 0 0-2.82 0L10 7l-1.59-1.59a2 2 0 0 0-2.82 0L6 7l-1.59-1.59a2 2 0 0 0-2.82 0L2 7v5c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V7l-1.63-4.37z"></path>',
+        'scissors' => '<circle cx="6" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><line x1="20" y1="4" x2="8.12" y2="15.88"></line><line x1="14.47" y1="14.48" x2="20" y2="20"></line><line x1="8.12" y1="8.12" x2="12" y2="12"></line>',
+        'eye' => '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle>',
+        'heart' => '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>',
+        'leaf' => '<path d="M6 3c5.5 2.5 5.5 16.5 0 19 1.5-5.5 1.5-10.5 0-19z"></path><path d="M6 3c5.5 2.5 5.5 16.5 0 19 1.5-5.5 1.5-10.5 0-19z" opacity=".3"></path>',
+        'moon' => '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>',
+        'sun' => '<circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 6.34-1.41 1.41"></path><path d="m19.07 19.07-1.41 1.41"></path>',
+        'home' => '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9,22 9,12 15,12 15,22"></polyline>',
+        'user' => '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle>',
+        'cog' => '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle>',
+        'wrench' => '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>',
+        'hammer' => '<path d="M15 12V9a1 1 0 0 0-1-1h-1a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1z"></path><path d="M9 12V9a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1z"></path><path d="M12 6v6"></path><path d="M12 18v-6"></path>',
+        'truck' => '<path d="M1 3h15v13H1z"></path><path d="M16 8h4l3 3v5h-7V8z"></path><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle>',
+        'phone' => '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>'
+    );
+    
+    return isset($heroicons[$icon_name]) ? $heroicons[$icon_name] : false;
+}
+
+/**
+ * Helper function to get service taksativne opcije HTML
+ */
+function lunart_get_service_taksativne_opcije_html($post_id = null) {
+    if (!$post_id) {
+        $post_id = get_the_ID();
+    }
+    
+    $taksativne_opcije = get_post_meta($post_id, '_taksativne_opcije', true);
+    
+    if (empty($taksativne_opcije) || !is_array($taksativne_opcije)) {
+        return '';
+    }
+    
+    $output = '<div class="service-taksativne-opcije">';
+    $output .= '<h4>Uključene usluge:</h4>';
+    $output .= '<ul class="taksativne-lista">';
+    
+    foreach ($taksativne_opcije as $opcija) {
+        if (!empty($opcija)) {
+            $output .= '<li class="taksativna-opcija">✓ ' . esc_html($opcija) . '</li>';
+        }
+    }
+    
+    $output .= '</ul>';
+    $output .= '</div>';
+    
+    return $output;
+}
 
 /**
  * Add custom shortcodes
@@ -452,40 +734,58 @@ add_filter('wp_resource_hints', 'lunart_resource_hints', 10, 2);
 function lunart_get_demo_services_data() {
     return array(
         array(
-            'title' => 'Restauracija Akvarela',
-            'content' => 'Stručna restauracija akvarelnih slika i ilustracija sa očuvanjem originalnih boja i tekstura. Koristimo najsavremenije tehnike konzervacije za zaštitu vaših dragocenih umetničkih dela.',
-            'excerpt' => 'Delikatan tretman akvarelnih slika sa očuvanjem originalnih boja i tekstura.',
-            'featured_image' => 'restored-watercolor-painting.png'
-        ),
-        array(
-            'title' => 'Konzervacija Knjiga',
-            'content' => 'Profesionalna nega retkih knjiga, rukopisa i istorijskih dokumenata. Pružamo kompletne usluge konzervacije koje obuhvataju čišćenje, stabilizaciju i zaštitu od daljeg propadanja.',
-            'excerpt' => 'Profesionalna nega retkih knjiga, rukopisa i istorijskih dokumenata.',
-            'featured_image' => 'conserved-manuscript-pages.png'
-        ),
-        array(
             'title' => 'Restauracija Crteža',
             'content' => 'Stručna restauracija crteža različitih tehnika - olovka, ugalj, pastel, tuš. Uklanjamo mrlje, popravljamo oštećenja papira i stabilizujemo medijum.',
             'excerpt' => 'Restauracija crteža različitih tehnika sa očuvanjem originalnog izgleda.',
-            'featured_image' => 'faded-charcoal-drawing.png'
+            'featured_image' => 'faded-charcoal-drawing.png',
+            'icon_name' => 'light-bulb',
+            'icon_color' => 'primary',
+            'taksativne_opcije' => array('Uklanjanje mrlja i diskoloracije', 'Popravka oštećenja papira', 'Stabilizacija medijuma')
+        ),
+        array(
+            'title' => 'Konzervacija Akvarela',
+            'content' => 'Stručna restauracija akvarelnih slika i ilustracija sa očuvanjem originalnih boja i tekstura. Koristimo najsavremenije tehnike konzervacije za zaštitu vaših dragocenih umetničkih dela.',
+            'excerpt' => 'Delikatan tretman akvarelnih slika sa očuvanjem originalnih boja i tekstura.',
+            'featured_image' => 'restored-watercolor-painting.png',
+            'icon_name' => 'star',
+            'icon_color' => 'accent',
+            'taksativne_opcije' => array('Fiksiranje boja', 'Uklanjanje kiselosti', 'Zaštita od UV zračenja')
+        ),
+        array(
+            'title' => 'Restauracija Knjiga',
+            'content' => 'Profesionalna nega retkih knjiga, rukopisa i istorijskih dokumenata. Pružamo kompletne usluge konzervacije koje obuhvataju čišćenje, stabilizaciju i zaštitu od daljeg propadanja.',
+            'excerpt' => 'Profesionalna nega retkih knjiga, rukopisa i istorijskih dokumenata.',
+            'featured_image' => 'conserved-manuscript-pages.png',
+            'icon_name' => 'book-open',
+            'icon_color' => 'secondary',
+            'taksativne_opcije' => array('Popravka korica', 'Restauracija stranica', 'Rebinding istorijskih knjiga')
         ),
         array(
             'title' => 'Vintage Plakati',
             'content' => 'Specializovana restauracija starih plakata i grafičkih radova. Uklanjamo lepak, popravljamo preklopljene delove i montiramo na arhivski karton.',
             'excerpt' => 'Restauracija starih plakata i grafičkih radova sa očuvanjem istorijskog značaja.',
-            'featured_image' => 'restored-vintage-poster.png'
+            'featured_image' => 'restored-vintage-poster.png',
+            'icon_name' => 'image',
+            'icon_color' => 'primary',
+            'taksativne_opcije' => array('Uklanjanje lepka', 'Popravka preklopljenih delova', 'Montiranje na arhivski karton')
         ),
         array(
             'title' => 'Analiza Materijala',
             'content' => 'Detaljno ispitivanje materijala pre početka restauracije. Identifikujemo pigmente, analiziramo papir i procenjujemo stanje umetničkog dela.',
             'excerpt' => 'Detaljna analiza materijala za optimalan pristup restauraciji.',
-            'featured_image' => 'damaged-watercolor-painting.png'
+            'featured_image' => 'damaged-watercolor-painting.png',
+            'icon_name' => 'search',
+            'icon_color' => 'accent',
+            'taksativne_opcije' => array('Identifikacija pigmenata', 'Analiza papira', 'Procena stanja')
         ),
         array(
             'title' => 'Preventivna Zaštita',
             'content' => 'Saveti i usluge za dugoročno očuvanje umetničkih dela. Uključujemo klimatske uslove, pravilno čuvanje i redovne preglede.',
             'excerpt' => 'Saveti za dugoročno očuvanje i zaštitu umetničkih dela.',
-            'featured_image' => 'preserved-manuscript-pages.png'
+            'featured_image' => 'preserved-manuscript-pages.png',
+            'icon_name' => 'shield-check',
+            'icon_color' => 'secondary',
+            'taksativne_opcije' => array('Preventivna zaštita', 'Analiza materijala')
         )
     );
 }
@@ -549,6 +849,19 @@ function lunart_import_demo_services($overwrite = false) {
                 }
             }
             
+            // Save icon data as custom meta
+            if (isset($service_data['icon_name'])) {
+                update_post_meta($service_id, '_service_icon_name', $service_data['icon_name']);
+            }
+            if (isset($service_data['icon_color'])) {
+                update_post_meta($service_id, '_service_icon_color', $service_data['icon_color']);
+            }
+            
+            // Save taksativne opcije
+            if (isset($service_data['taksativne_opcije'])) {
+                update_post_meta($service_id, '_taksativne_opcije', $service_data['taksativne_opcije']);
+            }
+            
             $imported_count++;
         }
     }
@@ -593,7 +906,7 @@ function lunart_demo_import_page() {
         
         <form method="post">
             <h2>Usluge</h2>
-            <p>Uvezite demo usluge sa slikama i opisima.</p>
+            <p>Uvezite demo usluge sa slikama, ikonicama i taksativnim opcijama.</p>
             <label>
                 <input type="checkbox" name="overwrite_existing" value="1">
                 Prepiši postojeće usluge

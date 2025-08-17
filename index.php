@@ -40,6 +40,7 @@
                     <a href="#services" class="btn btn-outline btn-xl border-2 border-primary/40 hover:bg-primary/10 hover:border-primary/60 bg-background/90 backdrop-blur-sm elegant-hover shadow-lg text-foreground">
                         Saznajte o Konzervaciji
                     </a>
+                    
                 </div>
 
                 <div class="hero-features">
@@ -134,141 +135,57 @@
             </div>
 
             <div class="services-grid">
-                <div class="service-card elegant-border elegant-hover">
-                    <div class="card-header">
-                        <div class="service-icon">
-                            <svg class="h-8 w-8 text-primary" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 1 14 18.469V19a2 2 0 0 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="card-title">Restauracija Crteža</h3>
-                        <p class="card-description">Stručna restauracija crteža različitih tehnika - olovka, ugalj, pastel, tuš</p>
-                    </div>
-                    <div class="card-content">
-                        <ul class="service-details">
-                            <li>Uklanjanje mrlja i diskoloracije</li>
-                            <li>Popravka oštećenja papira</li>
-                            <li>Stabilizacija medijuma</li>
-                        </ul>
-                        <a href="#contact" class="btn btn-outline w-full elegant-hover border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent">
-                            Saznajte više
-                        </a>
-                    </div>
-                </div>
+                <?php
+                // Query za services post type
+                $services_query = new WP_Query(array(
+                    'post_type' => 'service',
+                    'posts_per_page' => 6,
+                    'post_status' => 'publish',
+                    'orderby' => 'date',
+                    'order' => 'DESC'
+                ));
 
-                <div class="service-card elegant-border elegant-hover">
-                    <div class="card-header">
-                        <div class="service-icon">
-                            <svg class="h-8 w-8 text-accent" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-                            </svg>
+                if ($services_query->have_posts()) :
+                    while ($services_query->have_posts()) : $services_query->the_post();
+                        $icon_name = get_post_meta(get_the_ID(), '_service_icon_name', true);
+                        $icon_color = get_post_meta(get_the_ID(), '_service_icon_color', true);
+                        $taksativne_opcije = get_post_meta(get_the_ID(), '_taksativne_opcije', true);
+                ?>
+                    <div class="service-card elegant-border elegant-hover">
+                        <div class="card-header">
+                            <?php if ($icon_name) : ?>
+                                <div class="service-icon">
+                                    <?php echo lunart_get_service_icon_html(get_the_ID()); ?>
+                                </div>
+                            <?php endif; ?>
+                            <h3 class="service-title"><?php the_title(); ?></h3>
+                            <p class="service-description"><?php echo get_the_excerpt(); ?></p>
                         </div>
-                        <h3 class="card-title">Konzervacija Akvarela</h3>
-                        <p class="card-description">Delikatan tretman akvarelnih radova sa očuvanjem originalnih boja</p>
+                        <div class="card-content">
+                            <?php if (!empty($taksativne_opcije) && is_array($taksativne_opcije)) : ?>
+                                <ul class="service-details">
+                                    <?php foreach ($taksativne_opcije as $opcija) : ?>
+                                        <li><?php echo esc_html($opcija); ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
+                            <a href="<?php the_permalink(); ?>" class="btn btn-outline w-full elegant-hover border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent">
+                                Saznajte više
+                            </a>
+                        </div>
                     </div>
-                    <div class="card-content">
-                        <ul class="service-details">
-                            <li>Fiksiranje boja</li>
-                            <li>Uklanjanje kiselosti</li>
-                            <li>Zaštita od UV zračenja</li>
-                        </ul>
-                        <a href="#contact" class="btn btn-outline w-full elegant-hover border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent">
-                            Saznajte više
+                <?php
+                    endwhile;
+                    wp_reset_postdata();
+                else :
+                ?>
+                    <div class="col-span-full text-center py-12">
+                        <p class="text-muted-foreground text-lg">Trenutno nema usluga. Dodajte ih kroz admin panel.</p>
+                        <a href="<?php echo admin_url('edit.php?post_type=service'); ?>" class="btn btn-primary mt-4 elegant-hover">
+                            Dodaj Uslugu
                         </a>
                     </div>
-                </div>
-
-                <div class="service-card elegant-border elegant-hover">
-                    <div class="card-header">
-                        <div class="service-icon">
-                            <svg class="h-8 w-8 text-secondary" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="card-title">Restauracija Knjiga</h3>
-                        <p class="card-description">Kompleksna restauracija starih knjiga, rukopisa i dokumenata</p>
-                    </div>
-                    <div class="card-content">
-                        <ul class="service-details">
-                            <li>Popravka korica</li>
-                            <li>Restauracija stranica</li>
-                            <li>Rebinding istorijskih knjiga</li>
-                        </ul>
-                        <a href="#contact" class="btn btn-outline w-full elegant-hover border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent">
-                            Saznajte više
-                        </a>
-                    </div>
-                </div>
-
-                <div class="service-card elegant-border elegant-hover">
-                    <div class="card-header">
-                        <div class="service-icon">
-                            <svg class="h-8 w-8 text-primary" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                <polyline points="21,15 16,10 5,21"></polyline>
-                            </svg>
-                        </div>
-                        <h3 class="card-title">Vintage Plakati</h3>
-                        <p class="card-description">Specializovana restauracija starih plakata i grafičkih radova</p>
-                    </div>
-                    <div class="card-content">
-                        <ul class="service-details">
-                            <li>Uklanjanje lepka</li>
-                            <li>Popravka preklopljenih delova</li>
-                            <li>Montiranje na arhivski karton</li>
-                        </ul>
-                        <a href="#contact" class="btn btn-outline w-full elegant-hover border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent">
-                            Saznajte više
-                        </a>
-                    </div>
-                </div>
-
-                <div class="service-card elegant-border elegant-hover">
-                    <div class="card-header">
-                        <div class="service-icon">
-                            <svg class="h-8 w-8 text-accent" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <path d="m21 21-4.35-4.35"></path>
-                            </svg>
-                        </div>
-                        <h3 class="card-title">Analiza Materijala</h3>
-                        <p class="card-description">Detaljno ispitivanje materijala pre početka restauracije</p>
-                    </div>
-                    <div class="card-content">
-                        <ul class="service-details">
-                            <li>Identifikacija pigmenata</li>
-                            <li>Analiza papira</li>
-                            <li>Procena stanja</li>
-                        </ul>
-                        <a href="#contact" class="btn btn-outline w-full elegant-hover border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent">
-                            Saznajte više
-                        </a>
-                    </div>
-                </div>
-
-                <div class="service-card elegant-border elegant-hover">
-                    <div class="card-header">
-                        <div class="service-icon">
-                            <svg class="h-8 w-8 text-secondary" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="card-title">Preventivna Zaštita</h3>
-                        <p class="card-description">Saveti i usluge za dugoročno očuvanje umetničkih dela</p>
-                    </div>
-                    <div class="card-content">
-                        <ul class="service-details">
-                            <li>Klimatski uslovi</li>
-                            <li>Pravilno čuvanje</li>
-                            <li>Redovni pregledi</li>
-                        </ul>
-                        <a href="#contact" class="btn btn-outline w-full elegant-hover border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent">
-                            Saznajte više
-                        </a>
-                    </div>
-                </div>
+                <?php endif; ?>
             </div>
 
             <!-- Call to action -->
@@ -285,6 +202,8 @@
             </div>
         </div>
     </section>
+
+
 
     <!-- Gallery Section -->
     <section id="gallery" class="gallery-section">
