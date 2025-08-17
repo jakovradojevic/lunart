@@ -305,8 +305,8 @@ document.addEventListener('DOMContentLoaded', function() {
             bottom: 0;
             left: 0;
             right: 0;
-            background: var(--foreground);
-            color: var(--background);
+            background: #1f2937;
+            color: #ffffff;
             padding: 1rem;
             z-index: 9999;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.1);

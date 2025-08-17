@@ -75,6 +75,9 @@ function lunart_setup() {
     // Add theme support for selective refresh for widgets.
     add_theme_support('customize-selective-refresh-widgets');
 
+    // Add demo import menu
+    add_action('admin_menu', 'lunart_add_demo_import_menu');
+
     /**
      * Add support for core custom header image.
      *
@@ -874,6 +877,106 @@ function lunart_import_demo_services($overwrite = false) {
 }
 
 /**
+ * Import demo pages (O nama, Kontakt)
+ */
+function lunart_import_demo_pages() {
+    $pages_data = array(
+        array(
+            'title' => 'O nama',
+            'slug' => 'o-nama',
+            'content' => '
+<h2>O Lunart-u</h2>
+<p>Lunart je specijalizovana ustanova posvećena očuvanju kulturnog nasleđa kroz stručnu konzervaciju i restauraciju umetničkih dela na papiru.</p>
+
+<h3>Naša Misija</h3>
+<p>Naša misija je očuvanje i restauracija umetničkih dela na papiru, čime doprinosimo očuvanju kulturnog nasleđa i omogućavamo budućim generacijama da uživaju u lepoti originalnih umetničkih dela.</p>
+
+<h3>Naše Vrednosti</h3>
+<ul>
+<li><strong>Stručnost:</strong> Više od 15 godina iskustva u konzervaciji</li>
+<li><strong>Preciznost:</strong> Pažljivo i detaljno rukovanje svakim umetničkim delom</li>
+<li><strong>Inovacije:</strong> Korišćenje najsavremenijih tehnika i materijala</li>
+<li><strong>Održivost:</strong> Korišćenje ekološki prihvatljivih materijala</li>
+</ul>
+
+<h3>Naš Tim</h3>
+<p>Naš tim čine stručnjaci sa iskustvom u konzervaciji i restauraciji umetničkih dela na papiru. Svaki član tima je posvećen očuvanju umetnosti i kulturnog nasleđa.</p>
+
+<h3>Naša Uverenja</h3>
+<p>Svaki rad koji prođe kroz naše ruke nije samo restauriran - on je vraćen u život, spreman da inspiriše buduće generacije.</p>
+            ',
+            'template' => 'page'
+        ),
+        array(
+            'title' => 'Kontakt',
+            'slug' => 'kontakt',
+            'content' => '
+<h2>Kontaktirajte Nas</h2>
+<p>Javite nam se za besplatnu konsultaciju i procenu vašeg umetničkog dela.</p>
+
+<h3>Kontakt Informacije</h3>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0;">
+    <div>
+        <h4>Adresa</h4>
+        <p>Beograd-Zvezdara<br>Republika Srbija</p>
+    </div>
+    <div>
+        <h4>Email</h4>
+        <p><a href="mailto:info@lunart.rs">info@lunart.rs</a></p>
+    </div>
+    <div>
+        <h4>Telefon</h4>
+        <p>+381 XX XXX XXXX</p>
+    </div>
+    <div>
+        <h4>Radno Vreme</h4>
+        <p>Pon-Pet: 9:00 - 17:00<br>Sub: 9:00 - 13:00</p>
+    </div>
+</div>
+
+<h3>Poslovni Podaci</h3>
+<p><strong>Naziv:</strong> LUNART</p>
+<p><strong>Poslovno ime:</strong> Mila Borak preduzetnik Umetničko stvaralaštvo Lunart Beograd-Zvezdara</p>
+<p><strong>PIB:</strong> 115033613</p>
+<p><strong>Matični broj:</strong> 68039665</p>
+
+<h3>Kako do Nas</h3>
+<p>Nalazimo se u Beogradu, u opštini Zvezdara. Za detaljnije informacije o tačnoj lokaciji, kontaktirajte nas telefonom ili emailom.</p>
+
+<h3>Besplatna Konsultacija</h3>
+<p>Pružamo besplatnu konsultaciju za sve vrste umetničkih dela na papiru. Kontaktirajte nas i dogovorite termin za procenu.</p>
+            ',
+            'template' => 'page'
+        )
+    );
+    
+    $created_count = 0;
+    
+    foreach ($pages_data as $page_data) {
+        // Check if page already exists
+        $existing_page = get_page_by_path($page_data['slug']);
+        
+        if (!$existing_page) {
+            $page_args = array(
+                'post_title' => $page_data['title'],
+                'post_content' => $page_data['content'],
+                'post_status' => 'publish',
+                'post_type' => 'page',
+                'post_name' => $page_data['slug']
+            );
+            
+            $page_id = wp_insert_post($page_args);
+            
+            if (!is_wp_error($page_id)) {
+                $created_count++;
+            }
+        }
+    }
+    
+    return $created_count;
+}
+
+/**
  * Admin page for demo content import
  */
 function lunart_add_demo_import_menu() {
@@ -899,6 +1002,11 @@ function lunart_demo_import_page() {
         echo '</p></div>';
     }
     
+    if (isset($_POST['import_pages'])) {
+        $result = lunart_import_demo_pages();
+        echo '<div class="notice notice-success"><p>Demo stranice su uspešno kreirane!</p></div>';
+    }
+    
     ?>
     <div class="wrap">
         <h1>Demo Content Importer</h1>
@@ -913,6 +1021,14 @@ function lunart_demo_import_page() {
             </label>
             <br><br>
             <input type="submit" name="import_services" class="button button-primary" value="Uvezi Usluge">
+        </form>
+        
+        <hr style="margin: 30px 0;">
+        
+        <form method="post">
+            <h2>Stranice</h2>
+            <p>Kreirajte demo stranice: O nama i Kontakt.</p>
+            <input type="submit" name="import_pages" class="button button-primary" value="Kreiraj Stranice">
         </form>
     </div>
     <?php

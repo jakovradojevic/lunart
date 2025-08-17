@@ -190,12 +190,12 @@
 
             <!-- Call to action -->
             <div class="text-center mt-16">
-                <div class="elegant-border max-w-2xl mx-auto p-8">
-                    <h3 class="text-2xl font-serif font-semibold mb-4">Potrebna vam je procena?</h3>
-                    <p class="text-muted-foreground mb-6">
+                <div class="elegant-border max-w-2xl mx-auto p-12">
+                    <h3 class="text-2xl font-serif font-semibold mb-6">Potrebna vam je procena?</h3>
+                    <p class="text-muted-foreground mb-8">
                         Kontaktirajte nas za besplatnu konsultaciju i procenu stanja vašeg umetničkog dela
                     </p>
-                    <a href="#contact" class="btn btn-lg elegant-hover bg-primary hover:bg-primary/90 text-primary-foreground">
+                    <a href="#contact" class="btn btn-primary btn-lg elegant-hover">
                         Zakažite konsultaciju
                     </a>
                 </div>
@@ -349,12 +349,12 @@
 
             <!-- Call to action -->
             <div class="text-center mt-16">
-                <div class="elegant-border max-w-2xl mx-auto p-8">
-                    <h3 class="text-2xl font-serif font-semibold mb-4">Želite da vidite više?</h3>
-                    <p class="text-muted-foreground mb-6">
+                <div class="elegant-border max-w-2xl mx-auto p-12">
+                    <h3 class="text-2xl font-serif font-semibold mb-6">Želite da vidite više?</h3>
+                    <p class="text-muted-foreground mb-8">
                         Posetite našu kompletnu galeriju sa preko 200 uspešno restauriranih radova
                     </p>
-                    <a href="#gallery" class="btn btn-lg elegant-hover bg-primary hover:bg-primary/90 text-primary-foreground">
+                    <a href="#gallery" class="btn btn-primary btn-lg elegant-hover">
                         Kompletna Galerija
                         <svg class="ml-2 h-5 w-5" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -383,6 +383,19 @@
                     <div class="blog-dot secondary"></div>
                 </div>
             </div>
+
+            <!-- Call to action -->
+            <div class="text-center mt-16">
+                <div class="elegant-border max-w-2xl mx-auto p-12">
+                    <h3 class="text-2xl font-serif font-semibold mb-6">Želite da saznate više?</h3>
+                    <p class="text-muted-foreground mb-8">
+                        Pratite naš blog za najnovije informacije o konzervaciji i restauraciji
+                    </p>
+                    <a href="#blog" class="btn btn-primary btn-lg elegant-hover">
+                        Pratite Blog
+                    </a>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -403,6 +416,19 @@
                         buduće generacije."
                     </p>
                     <p class="about-quote-author">- Tim Lunart</p>
+                </div>
+            </div>
+
+            <!-- Call to action -->
+            <div class="text-center mt-16">
+                <div class="elegant-border max-w-2xl mx-auto p-12">
+                    <h3 class="text-2xl font-serif font-semibold mb-6">Želite da saznate više o nama?</h3>
+                    <p class="text-muted-foreground mb-8">
+                        Kontaktirajte nas za besplatnu konsultaciju i saznajte kako možemo pomoći vašem umetničkom delu
+                    </p>
+                    <a href="#contact" class="btn btn-primary btn-lg elegant-hover">
+                        Kontaktirajte Nas
+                    </a>
                 </div>
             </div>
         </div>

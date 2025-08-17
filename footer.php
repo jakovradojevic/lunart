@@ -5,7 +5,9 @@
             <div class="footer-content">
                 <div class="footer-section">
                     <div class="footer-logo">
-                        <?php echo lunart_get_logo_html(); ?>
+                        <a href="<?php echo home_url('/'); ?>">
+                            <?php echo lunart_get_logo_html(); ?>
+                        </a>
                     </div>
                     <h3 class="gradient-text">LUNART</h3>
                     <p>Vaš pouzdani partner za konzervaciju i restauraciju umetničkih dela</p>
@@ -36,16 +38,22 @@
                 <div class="footer-section">
                     <h4>Kontakt</h4>
                     <div class="contact-info">
-                        <p>Beograd-Zvezdara</p>
-                        <p>Email: info@lunart.rs</p>
-                        <p>Tel: +381 XX XXX XXXX</p>
+                        <p><?php echo get_theme_mod('contact_address', 'Beograd-Zvezdara'); ?></p>
+                        <p>Email: <?php echo get_theme_mod('contact_email', 'info@lunart.rs'); ?></p>
+                        <p>Tel: <?php echo get_theme_mod('contact_phone', '+381 XX XXX XXXX'); ?></p>
                     </div>
                 </div>
+
+                <?php if (get_theme_mod('footer_show_social', true)) : ?>
+                    <div class="footer-section">
+                        <?php echo lunart_get_social_media_html(); ?>
+                    </div>
+                <?php endif; ?>
             </div>
             
             <div class="footer-bottom">
                 <div class="footer-bottom-content">
-                    <p>&copy; <?php echo date('Y'); ?> LUNART. Sva prava zadržana.</p>
+                    <p><?php echo get_theme_mod('footer_copyright', '&copy; ' . date('Y') . ' LUNART. Sva prava zadržana.'); ?></p>
                 </div>
             </div>
         </div>
@@ -99,3 +107,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+

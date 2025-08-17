@@ -618,6 +618,23 @@ p {
   border-bottom: 1px solid var(--border);
 }
 
+/* Fix for content being hidden behind fixed navigation */
+.main-content,
+.hero-section,
+.services-section,
+.gallery-section,
+.blog-section,
+.about-section {
+  padding-top: 5rem; /* Same as navigation height */
+}
+
+/* Archive pages and single posts */
+.archive-header,
+.single-service .service-header,
+.service-single .service-header {
+  padding-top: 6rem;
+}
+
 .navigation .container {
   display: flex;
   align-items: center;
@@ -734,7 +751,7 @@ p {
 }
 
 .hero-subtitle {
-  font-size: 1.5rem;
+  font-size: 1.125rem;
   color: var(--muted-foreground);
   margin-bottom: 2rem;
   line-height: 1.6;
@@ -748,7 +765,7 @@ p {
   flex-direction: column;
   gap: 1.5rem;
   justify-content: center;
-  margin-bottom: 5rem;
+  margin-bottom: 3rem;
   flex-wrap: wrap;
 }
 
@@ -767,7 +784,7 @@ p {
   display: grid;
   grid-template-columns: 1fr;
   gap: 2rem;
-  margin-bottom: 5rem;
+  margin-bottom: 2rem;
 }
 
 @media (min-width: 768px) {
@@ -1435,6 +1452,72 @@ p {
     text-align: center;
 }
 
+/* Social Media Styles */
+.social-media-links {
+    text-align: center;
+}
+
+.social-media-links h4 {
+    margin-bottom: 1rem;
+    color: var(--foreground);
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.social-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: var(--primary);
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.social-icon:hover {
+    background-color: transparent;
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.social-icon svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+/* Social platform specific colors */
+.social-icon.facebook:hover {
+    border-color: #1877f2;
+    color: #1877f2;
+}
+
+.social-icon.instagram:hover {
+    border-color: #e4405f;
+    color: #e4405f;
+}
+
+.social-icon.linkedin:hover {
+    border-color: #0077b5;
+    color: #0077b5;
+}
+
+.social-icon.youtube:hover {
+    border-color: #ff0000;
+    color: #ff0000;
+}
+
 /* Service Taksativne Opcije Styles */
 .service-taksativne-opcije {
     margin: 1.5rem 0;
@@ -1493,6 +1576,11 @@ p {
     padding: 6rem 0;
     position: relative;
     background-color: var(--background);
+}
+
+/* Archive Header Styles */
+.archive-header {
+    padding: 4rem 0 2rem 0;
 }
 
 /* Single Service Template Styles */
@@ -1730,4 +1818,40 @@ p {
         padding: 3rem 0 1.5rem;
         margin-top: 3rem;
     }
+}
+
+/* Pagination Styles */
+.pagination-wrapper {
+    border-top: 1px solid var(--border);
+    padding-top: 2rem;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
+
+.pagination a {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    color: var(--foreground);
+    text-decoration: none;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.pagination a:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-color: var(--border);
+    color: var(--primary);
+}
+
+.pagination-arrow {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin: 0 0.5rem;
 }
