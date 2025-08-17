@@ -445,3 +445,162 @@ function lunart_resource_hints($urls, $relation_type) {
     return $urls;
 }
 add_filter('wp_resource_hints', 'lunart_resource_hints', 10, 2);
+
+/**
+ * Demo Content Importer for Services
+ */
+function lunart_get_demo_services_data() {
+    return array(
+        array(
+            'title' => 'Restauracija Akvarela',
+            'content' => 'Stručna restauracija akvarelnih slika i ilustracija sa očuvanjem originalnih boja i tekstura. Koristimo najsavremenije tehnike konzervacije za zaštitu vaših dragocenih umetničkih dela.',
+            'excerpt' => 'Delikatan tretman akvarelnih slika sa očuvanjem originalnih boja i tekstura.',
+            'featured_image' => 'restored-watercolor-painting.png'
+        ),
+        array(
+            'title' => 'Konzervacija Knjiga',
+            'content' => 'Profesionalna nega retkih knjiga, rukopisa i istorijskih dokumenata. Pružamo kompletne usluge konzervacije koje obuhvataju čišćenje, stabilizaciju i zaštitu od daljeg propadanja.',
+            'excerpt' => 'Profesionalna nega retkih knjiga, rukopisa i istorijskih dokumenata.',
+            'featured_image' => 'conserved-manuscript-pages.png'
+        ),
+        array(
+            'title' => 'Restauracija Crteža',
+            'content' => 'Stručna restauracija crteža različitih tehnika - olovka, ugalj, pastel, tuš. Uklanjamo mrlje, popravljamo oštećenja papira i stabilizujemo medijum.',
+            'excerpt' => 'Restauracija crteža različitih tehnika sa očuvanjem originalnog izgleda.',
+            'featured_image' => 'faded-charcoal-drawing.png'
+        ),
+        array(
+            'title' => 'Vintage Plakati',
+            'content' => 'Specializovana restauracija starih plakata i grafičkih radova. Uklanjamo lepak, popravljamo preklopljene delove i montiramo na arhivski karton.',
+            'excerpt' => 'Restauracija starih plakata i grafičkih radova sa očuvanjem istorijskog značaja.',
+            'featured_image' => 'restored-vintage-poster.png'
+        ),
+        array(
+            'title' => 'Analiza Materijala',
+            'content' => 'Detaljno ispitivanje materijala pre početka restauracije. Identifikujemo pigmente, analiziramo papir i procenjujemo stanje umetničkog dela.',
+            'excerpt' => 'Detaljna analiza materijala za optimalan pristup restauraciji.',
+            'featured_image' => 'damaged-watercolor-painting.png'
+        ),
+        array(
+            'title' => 'Preventivna Zaštita',
+            'content' => 'Saveti i usluge za dugoročno očuvanje umetničkih dela. Uključujemo klimatske uslove, pravilno čuvanje i redovne preglede.',
+            'excerpt' => 'Saveti za dugoročno očuvanje i zaštitu umetničkih dela.',
+            'featured_image' => 'preserved-manuscript-pages.png'
+        )
+    );
+}
+
+/**
+ * Import demo services
+ */
+function lunart_import_demo_services($overwrite = false) {
+    $services_data = lunart_get_demo_services_data();
+    $imported_count = 0;
+    $skipped_count = 0;
+    
+    foreach ($services_data as $service_data) {
+        // Check if service already exists
+        $existing_service = get_page_by_title($service_data['title'], OBJECT, 'service');
+        
+        if ($existing_service && !$overwrite) {
+            $skipped_count++;
+            continue;
+        }
+        
+        // Prepare service data
+        $service_args = array(
+            'post_title' => $service_data['title'],
+            'post_content' => $service_data['content'],
+            'post_excerpt' => $service_data['excerpt'],
+            'post_status' => 'publish',
+            'post_type' => 'service',
+            'post_author' => 1
+        );
+        
+        // Insert or update service
+        if ($existing_service && $overwrite) {
+            $service_args['ID'] = $existing_service->ID;
+            $service_id = wp_update_post($service_args);
+        } else {
+            $service_id = wp_insert_post($service_args);
+        }
+        
+        if (!is_wp_error($service_id)) {
+            // Set featured image
+            $image_path = get_template_directory() . '/assets/' . $service_data['featured_image'];
+            if (file_exists($image_path)) {
+                $upload = wp_upload_bits($service_data['featured_image'], null, file_get_contents($image_path));
+                if (!$upload['error']) {
+                    $wp_filetype = wp_check_filetype($service_data['featured_image'], null);
+                    $attachment = array(
+                        'post_mime_type' => $wp_filetype['type'],
+                        'post_title' => preg_replace('/\.[^.]+$/', '', $service_data['featured_image']),
+                        'post_content' => '',
+                        'post_status' => 'inherit'
+                    );
+                    
+                    $attach_id = wp_insert_attachment($attachment, $upload['file'], $service_id);
+                    if (!is_wp_error($attach_id)) {
+                        require_once(ABSPATH . 'wp-admin/includes/image.php');
+                        $attach_data = wp_generate_attachment_metadata($attach_id, $upload['file']);
+                        wp_update_attachment_metadata($attach_id, $attach_data);
+                        set_post_thumbnail($service_id, $attach_id);
+                    }
+                }
+            }
+            
+            $imported_count++;
+        }
+    }
+    
+    return array(
+        'imported' => $imported_count,
+        'skipped' => $skipped_count,
+        'total' => count($services_data)
+    );
+}
+
+/**
+ * Admin page for demo content import
+ */
+function lunart_add_demo_import_menu() {
+    add_management_page(
+        'Demo Content Importer',
+        'Demo Content',
+        'manage_options',
+        'demo-content-importer',
+        'lunart_demo_import_page'
+    );
+}
+add_action('admin_menu', 'lunart_add_demo_import_menu');
+
+function lunart_demo_import_page() {
+    if (isset($_POST['import_services'])) {
+        $overwrite = isset($_POST['overwrite_existing']);
+        $result = lunart_import_demo_services($overwrite);
+        
+        echo '<div class="notice notice-success"><p>';
+        echo 'Uspešno uvezeno: ' . $result['imported'] . ' usluga<br>';
+        echo 'Preskočeno: ' . $result['skipped'] . ' usluga<br>';
+        echo 'Ukupno: ' . $result['total'] . ' usluga';
+        echo '</p></div>';
+    }
+    
+    ?>
+    <div class="wrap">
+        <h1>Demo Content Importer</h1>
+        <p>Uvezite demo sadržaj za vašu temu.</p>
+        
+        <form method="post">
+            <h2>Usluge</h2>
+            <p>Uvezite demo usluge sa slikama i opisima.</p>
+            <label>
+                <input type="checkbox" name="overwrite_existing" value="1">
+                Prepiši postojeće usluge
+            </label>
+            <br><br>
+            <input type="submit" name="import_services" class="button button-primary" value="Uvezi Usluge">
+        </form>
+    </div>
+    <?php
+}
