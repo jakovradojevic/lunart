@@ -4,23 +4,6 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     
-    // Mobile menu toggle
-    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-    const mobileMenu = document.querySelector('.mobile-menu');
-    
-    if (mobileMenuToggle && mobileMenu) {
-        mobileMenuToggle.addEventListener('click', function() {
-            mobileMenu.classList.toggle('active');
-        });
-    }
-    
-    // Close mobile menu when clicking on a link
-    const mobileMenuLinks = document.querySelectorAll('.mobile-menu a');
-    mobileMenuLinks.forEach(link => {
-        link.addEventListener('click', function() {
-            mobileMenu.classList.remove('active');
-        });
-    });
     
     // Smooth scrolling for anchor links
     const anchorLinks = document.querySelectorAll('a[href^="#"]');
@@ -63,14 +46,19 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(el);
     });
     
-    // Parallax effect for hero section
+    // Parallax/background scroll effect for hero section (non-intrusive)
     const heroSection = document.querySelector('.hero-section');
     if (heroSection) {
-        window.addEventListener('scroll', function() {
-            const scrolled = window.pageYOffset;
-            const rate = scrolled * -0.5;
-            heroSection.style.transform = `translateY(${rate}px)`;
-        });
+        // Ensure any previous transform is cleared to avoid layout gaps
+        heroSection.style.transform = '';
+        const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
+        const onScrollHero = () => {
+            if (prefersReduced && prefersReduced.matches) return;
+            const scrolled = window.pageYOffset || document.documentElement.scrollTop || 0;
+            // Move background only to prevent layout shift (no translate on the container)
+            heroSection.style.backgroundPosition = `center ${Math.round(scrolled * 0.2)}px`;
+        };
+        window.addEventListener('scroll', onScrollHero, { passive: true });
     }
     
     // Gallery image hover effects
@@ -175,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <p>Ova web stranica koristi kolačiće za poboljšanje korisničkog iskustva. Nastavkom korišćenja stranice pristajete na korišćenje kolačića.</p>
                 <div class="cookie-buttons">
                     <button class="btn btn-primary accept-cookies">Prihvatam</button>
-                    <button class="btn btn-outline decline-cookies">Odbijam</button>
+                    <button class="btn btn-outline decline-cookies border-primary text-primary">Odbijam</button>
                 </div>
             </div>
         `;
@@ -324,6 +312,31 @@ document.addEventListener('DOMContentLoaded', function() {
         .cookie-buttons {
             display: flex;
             gap: 0.5rem;
+        }
+        
+        /* Cookie banner responsiveness and decline button styling */
+        .cookie-banner .decline-cookies {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: transparent;
+        }
+        .cookie-banner .decline-cookies:hover,
+        .cookie-banner .decline-cookies:focus {
+            background: rgba(241, 14, 85, 0.08); /* fallback hover tint */
+        }
+        @media (max-width: 640px) {
+            .cookie-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+            .cookie-buttons {
+                width: 100%;
+            }
+            .cookie-buttons .btn {
+                flex: 1;
+                width: 100%;
+            }
         }
         
         .btn.loading {

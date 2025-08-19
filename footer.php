@@ -60,49 +60,6 @@
     </footer><!-- #colophon -->
 </div><!-- #page -->
 
-<script>
-// Mobile menu toggle
-document.addEventListener('DOMContentLoaded', function() {
-    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-    const mobileMenu = document.querySelector('.mobile-menu');
-    
-    if (mobileMenuToggle && mobileMenu) {
-        mobileMenuToggle.addEventListener('click', function() {
-            mobileMenu.classList.toggle('active');
-        });
-    }
-    
-    // Close mobile menu when clicking on a link
-    const mobileMenuLinks = document.querySelectorAll('.mobile-menu a');
-    mobileMenuLinks.forEach(link => {
-        link.addEventListener('click', function() {
-            mobileMenu.classList.remove('active');
-        });
-    });
-    
-    // Smooth scrolling for anchor links
-    const anchorLinks = document.querySelectorAll('a[href^="#"]');
-    anchorLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            const href = this.getAttribute('href');
-            if (href === '#') return;
-            
-            const target = document.querySelector(href);
-            if (target) {
-                e.preventDefault();
-                const headerHeight = document.querySelector('.navigation').offsetHeight;
-                const targetPosition = target.offsetTop - headerHeight;
-                
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
-            }
-        });
-    });
-});
-</script>
-
 <?php wp_footer(); ?>
 
 </body>

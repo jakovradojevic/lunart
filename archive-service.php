@@ -67,7 +67,7 @@
         <?php endif; ?>
 
         <!-- Call to Action -->
-        <div class="text-center mt-16">
+        <div class="cta-section text-center mt-16">
             <div class="elegant-border max-w-2xl mx-auto p-12">
                 <h3 class="text-2xl font-serif font-semibold mb-6">Želite da vidite više?</h3>
                 <p class="text-muted-foreground mb-8">

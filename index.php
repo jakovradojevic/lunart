@@ -189,7 +189,7 @@
             </div>
 
             <!-- Call to action -->
-            <div class="text-center mt-16">
+            <div class="cta-section text-center mt-16">
                 <div class="elegant-border max-w-2xl mx-auto p-12">
                     <h3 class="text-2xl font-serif font-semibold mb-6">Potrebna vam je procena?</h3>
                     <p class="text-muted-foreground mb-8">
@@ -221,134 +221,13 @@
                 </p>
             </div>
 
-            <div class="gallery-grid">
-                <div class="gallery-item elegant-border overflow-hidden elegant-hover">
-                    <div class="gallery-images">
-                        <div class="gallery-image">
-                            <img src="<?php echo get_template_directory_uri(); ?>/assets/damaged-watercolor-painting.png" alt="Restauracija Akvarela - pre restauracije">
-                            <div class="gallery-image-overlay">
-                                <span>PRE</span>
-                            </div>
-                        </div>
-                        <div class="gallery-image">
-                            <img src="<?php echo get_template_directory_uri(); ?>/assets/restored-watercolor-painting.png" alt="Restauracija Akvarela - posle restauracije">
-                            <div class="gallery-image-overlay">
-                                <span>POSLE</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="gallery-content">
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="gallery-category">Akvarel</span>
-                            <a href="#" class="btn btn-outline text-muted-foreground hover:text-primary">
-                                <svg class="h-4 w-4 mr-1" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                    <circle cx="12" cy="12" r="3"></circle>
-                                </svg>
-                                Detalji
-                            </a>
-                        </div>
-                        <h3 class="gallery-title">Restauracija Akvarela iz 19. veka</h3>
-                        <p class="gallery-description">Kompleksna restauracija oštećenog akvarela sa rekonstrukcijom nedostajućih delova</p>
-                    </div>
-                </div>
-
-                <div class="gallery-item elegant-border overflow-hidden elegant-hover">
-                    <div class="gallery-images">
-                        <div class="gallery-image">
-                            <img src="<?php echo get_template_directory_uri(); ?>/assets/faded-charcoal-drawing.png" alt="Konzervacija Istorijskog Rukopisa - pre restauracije">
-                            <div class="gallery-image-overlay">
-                                <span>PRE</span>
-                            </div>
-                        </div>
-                        <div class="gallery-image">
-                            <img src="<?php echo get_template_directory_uri(); ?>/assets/conserved-manuscript-pages.png" alt="Konzervacija Istorijskog Rukopisa - posle restauracije">
-                            <div class="gallery-image-overlay">
-                                <span>POSLE</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="gallery-content">
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="gallery-category">Rukopis</span>
-                            <a href="#" class="btn btn-outline text-muted-foreground hover:text-primary">
-                                <svg class="h-4 w-4 mr-1" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                    <circle cx="12" cy="12" r="3"></circle>
-                                </svg>
-                                Detalji
-                            </a>
-                        </div>
-                        <h3 class="gallery-title">Konzervacija Istorijskog Rukopisa</h3>
-                        <p class="gallery-description">Stabilizacija i čišćenje rukopisa iz 18. veka sa očuvanjem originalnog izgleda</p>
-                    </div>
-                </div>
-
-                <div class="gallery-item elegant-border overflow-hidden elegant-hover">
-                    <div class="gallery-images">
-                        <div class="gallery-image">
-                            <img src="<?php echo get_template_directory_uri(); ?>/assets/vintage-torn-poster.png" alt="Restauracija Vintage Plakata - pre restauracije">
-                            <div class="gallery-image-overlay">
-                                <span>PRE</span>
-                            </div>
-                        </div>
-                        <div class="gallery-image">
-                            <img src="<?php echo get_template_directory_uri(); ?>/assets/restored-vintage-poster.png" alt="Restauracija Vintage Plakata - posle restauracije">
-                            <div class="gallery-image-overlay">
-                                <span>POSLE</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="gallery-content">
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="gallery-category">Plakat</span>
-                            <a href="#" class="btn btn-outline text-muted-foreground hover:text-primary">
-                                <svg class="h-4 w-4 mr-1" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                    <circle cx="12" cy="12" r="3"></circle>
-                                </svg>
-                                Detalji
-                            </a>
-                        </div>
-                        <h3 class="gallery-title">Restauracija Vintage Plakata</h3>
-                        <p class="gallery-description">Uklanjanje mrlja i popravka preklopljenih delova na plakatu iz 1920-ih</p>
-                    </div>
-                </div>
-
-                <div class="gallery-item elegant-border overflow-hidden elegant-hover">
-                    <div class="gallery-images">
-                        <div class="gallery-image">
-                            <img src="<?php echo get_template_directory_uri(); ?>/assets/faded-charcoal-drawing.png" alt="Konzervacija Crteža Ugljenom - pre restauracije">
-                            <div class="gallery-image-overlay">
-                                <span>PRE</span>
-                            </div>
-                        </div>
-                        <div class="gallery-image">
-                            <img src="<?php echo get_template_directory_uri(); ?>/assets/conserved-charcoal-drawing.png" alt="Konzervacija Crteža Ugljenom - posle restauracije">
-                            <div class="gallery-image-overlay">
-                                <span>POSLE</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="gallery-content">
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="gallery-category">Crtež</span>
-                            <a href="#" class="btn btn-outline text-muted-foreground hover:text-primary">
-                                <svg class="h-4 w-4 mr-1" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                    <circle cx="12" cy="12" r="3"></circle>
-                                </svg>
-                                Detalji
-                            </a>
-                        </div>
-                        <h3 class="gallery-title">Konzervacija Crteža Ugljenom</h3>
-                        <p class="gallery-description">Fiksiranje uglja i uklanjanje kiselosti sa papira</p>
-                    </div>
-                </div>
-            </div>
+            <?php
+            // Dinamička galerija: koristi shortcode koji prikazuje gallery_item postove sa pre/posle slikama
+            echo do_shortcode('[lunart_gallery limit="12"]');
+            ?>
 
             <!-- Call to action -->
-            <div class="text-center mt-16">
+            <div class="cta-section text-center mt-16">
                 <div class="elegant-border max-w-2xl mx-auto p-12">
                     <h3 class="text-2xl font-serif font-semibold mb-6">Želite da vidite više?</h3>
                     <p class="text-muted-foreground mb-8">
@@ -385,7 +264,7 @@
             </div>
 
             <!-- Call to action -->
-            <div class="text-center mt-16">
+            <div class="cta-section text-center mt-16">
                 <div class="elegant-border max-w-2xl mx-auto p-12">
                     <h3 class="text-2xl font-serif font-semibold mb-6">Želite da saznate više?</h3>
                     <p class="text-muted-foreground mb-8">
@@ -420,7 +299,7 @@
             </div>
 
             <!-- Call to action -->
-            <div class="text-center mt-16">
+            <div class="cta-section text-center mt-16">
                 <div class="elegant-border max-w-2xl mx-auto p-12">
                     <h3 class="text-2xl font-serif font-semibold mb-6">Želite da saznate više o nama?</h3>
                     <p class="text-muted-foreground mb-8">

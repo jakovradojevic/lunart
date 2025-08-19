@@ -314,6 +314,7 @@ function lunart_gallery_meta_box_callback($post) {
     $before_image = get_post_meta($post->ID, '_before_image', true);
     $after_image = get_post_meta($post->ID, '_after_image', true);
     $category = get_post_meta($post->ID, '_category', true);
+    $subtitle = get_post_meta($post->ID, '_subtitle', true);
 
     echo '<table class="form-table">';
     echo '<tr>';
@@ -327,6 +328,10 @@ function lunart_gallery_meta_box_callback($post) {
     echo '<tr>';
     echo '<th><label for="category">' . __('Kategorija', 'lunart') . '</label></th>';
     echo '<td><input type="text" id="category" name="category" value="' . esc_attr($category) . '" class="regular-text" /></td>';
+    echo '</tr>';
+    echo '<tr>';
+    echo '<th><label for="subtitle">' . __('Podnaslov', 'lunart') . '</label></th>';
+    echo '<td><input type="text" id="subtitle" name="subtitle" value="' . esc_attr($subtitle) . '" class="regular-text" /></td>';
     echo '</tr>';
     echo '</table>';
 }
@@ -360,6 +365,10 @@ function lunart_save_gallery_meta($post_id) {
 
     if (isset($_POST['category'])) {
         update_post_meta($post_id, '_category', sanitize_text_field($_POST['category']));
+    }
+
+    if (isset($_POST['subtitle'])) {
+        update_post_meta($post_id, '_subtitle', sanitize_text_field($_POST['subtitle']));
     }
 }
 add_action('save_post', 'lunart_save_gallery_meta');
@@ -658,6 +667,7 @@ function lunart_gallery_shortcode($atts) {
             $before_image = get_post_meta(get_the_ID(), '_before_image', true);
             $after_image = get_post_meta(get_the_ID(), '_after_image', true);
             $category = get_post_meta(get_the_ID(), '_category', true);
+            $subtitle = get_post_meta(get_the_ID(), '_subtitle', true);
 
             $output .= '<div class="gallery-item elegant-border overflow-hidden elegant-hover">';
             $output .= '<div class="gallery-images">';
@@ -671,8 +681,24 @@ function lunart_gallery_shortcode($atts) {
             $output .= '</div>';
             $output .= '</div>';
             $output .= '<div class="gallery-content">';
-            $output .= '<span class="gallery-category">' . esc_html($category) . '</span>';
+            $output .= '<div class="flex items-center justify-between mb-3">';
+            if (!empty($category)) {
+                $output .= '<span class="gallery-category">' . esc_html($category) . '</span>';
+            } else {
+                $output .= '<span class="gallery-category">&nbsp;</span>';
+            }
+            $output .= '<a href="' . esc_url(get_permalink()) . '" class="btn btn-outline text-muted-foreground hover:text-primary">';
+            $output .= '<svg class="h-4 w-4 mr-1" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">';
+            $output .= '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>';
+            $output .= '<circle cx="12" cy="12" r="3"></circle>';
+            $output .= '</svg>';
+            $output .= 'Detalji';
+            $output .= '</a>';
+            $output .= '</div>';
             $output .= '<h3 class="gallery-title">' . get_the_title() . '</h3>';
+            if (!empty($subtitle)) {
+                $output .= '<div class="gallery-subtitle" style="opacity:0.8; margin-top: -0.5rem;">' . esc_html($subtitle) . '</div>';
+            }
             $output .= '<p class="gallery-description">' . get_the_excerpt() . '</p>';
             $output .= '</div>';
             $output .= '</div>';
@@ -730,6 +756,145 @@ function lunart_resource_hints($urls, $relation_type) {
     return $urls;
 }
 add_filter('wp_resource_hints', 'lunart_resource_hints', 10, 2);
+
+/**
+ * Demo Content for Gallery (Galerija radova)
+ */
+function lunart_get_demo_gallery_data() {
+    return array(
+        array(
+            'title' => 'Restauracija crteža (ugalj)',
+            'subtitle' => 'Konzervacija i restauracija crteža',
+            'excerpt' => 'Uklanjanje diskoloracije i stabilizacija papira.',
+            'content' => '<p>Ovaj crtež izveden u tehnici uglja prošao je kroz složen proces čišćenja i stabilizacije. Površinske nečistoće i kiseline uklonjene su mehaničkim i hemijskim metodama, uz poštovanje principa reversibilnosti.</p><p>Nakon toga urađena je konsolidacija vlakana papira i lokalna nivelacija nabora. Korišćeni su arhivski, pH-neutralni materijali koji obezbeđuju dugoročnu stabilnost rada.</p>',
+            'category' => 'Crtež',
+            'before_image' => 'faded-charcoal-drawing.png',
+            'after_image'  => 'conserved-charcoal-drawing.png'
+        ),
+        array(
+            'title' => 'Restauracija akvarela',
+            'subtitle' => 'Vraćanje originalnog sjaja boja',
+            'excerpt' => 'Delikatan tretman akvarel papira i pigmenata.',
+            'content' => '<p>Akvarel je osetljiva tehnika koja zahteva minimalno invazivne postupke. Bojeni sloj stabilizovan je fiksativima kompatibilnim sa pigmentima, dok su mrlje i žutilo tretirani selektivno kako bi se očuvao originalni karakter.</p><p>Posebna pažnja posvećena je ravnanju papira i korekciji talasanja, kako bi rad ponovo zadobio čitkost i vizuelnu ravnotežu.</p>',
+            'category' => 'Akvarel',
+            'before_image' => 'damaged-watercolor.png',
+            'after_image'  => 'restored-watercolor-painting.png'
+        ),
+        array(
+            'title' => 'Vintage plakat — popravka',
+            'subtitle' => 'Uklanjanje cepotina i ojačavanje',
+            'excerpt' => 'Stabilizacija vlakana i estetska rekonstrukcija.',
+            'content' => '<p>Plakat je imao više mehaničkih oštećenja i cepotina duž ivica. Izvršena je dezacidifikacija papira i lokalna rekonstrukcija nedostajućih delova uz pomoć toniranih japanskih papira.</p><p>Na kraju je urađena zaštitna montaža na arhivski karton kako bi se obezbedila stabilnost tokom izlaganja i skladištenja.</p>',
+            'category' => 'Plakat',
+            'before_image' => 'vintage-torn-poster.png',
+            'after_image'  => 'restored-vintage-poster.png'
+        ),
+        array(
+            'title' => 'Konzervacija rukopisnih strana',
+            'subtitle' => 'Arhivsko očuvanje dokumenata',
+            'excerpt' => 'Čišćenje, neutralizacija kiselosti i zaštita.',
+            'content' => '<p>Rukopisne strane tretirane su suvim i mokrim čišćenjem, uz pažljivo testiranje stabilnosti mastila. Kiselost je neutralisana tamponiranim rastvorima kako bi se usporilo dalje propadanje.</p><p>Nakon konzervacije, dokumenti su smešteni u zaštitne omote od bezkiselinskih materijala, spremni za dugoročno arhivsko čuvanje.</p>',
+            'category' => 'Rukopis',
+            'before_image' => 'preserved-manuscript-pages.png',
+            'after_image'  => 'conserved-manuscript-pages.png'
+        )
+    );
+}
+
+/**
+ * Import demo gallery items
+ */
+function lunart_import_demo_gallery($overwrite = false) {
+    $items = lunart_get_demo_gallery_data();
+    $imported = 0;
+    $skipped = 0;
+
+    foreach ($items as $item) {
+        $existing = get_page_by_title($item['title'], OBJECT, 'gallery_item');
+        if ($existing && !$overwrite) {
+            $skipped++;
+            continue;
+        }
+
+        $post_args = array(
+            'post_title'   => $item['title'],
+            'post_content' => isset($item['content']) ? $item['content'] : $item['excerpt'],
+            'post_excerpt' => $item['excerpt'],
+            'post_status'  => 'publish',
+            'post_type'    => 'gallery_item',
+            'post_author'  => 1
+        );
+
+        if ($existing && $overwrite) {
+            $post_args['ID'] = $existing->ID;
+            $post_id = wp_update_post($post_args);
+        } else {
+            $post_id = wp_insert_post($post_args);
+        }
+
+        if (is_wp_error($post_id)) {
+            continue;
+        }
+
+        // Helper to upload an asset image from theme assets folder
+        $upload_asset = function($filename) use ($post_id) {
+            $source_path = get_template_directory() . '/assets/' . $filename;
+            if (!file_exists($source_path)) {
+                return array('id' => 0, 'url' => '');
+            }
+            $bits = wp_upload_bits($filename, null, file_get_contents($source_path));
+            if ($bits['error']) {
+                return array('id' => 0, 'url' => '');
+            }
+            $wp_filetype = wp_check_filetype($filename, null);
+            $attachment = array(
+                'post_mime_type' => $wp_filetype['type'],
+                'post_title'     => preg_replace('/\.[^.]+$/', '', $filename),
+                'post_content'   => '',
+                'post_status'    => 'inherit'
+            );
+            $attach_id = wp_insert_attachment($attachment, $bits['file'], $post_id);
+            if (!is_wp_error($attach_id)) {
+                require_once(ABSPATH . 'wp-admin/includes/image.php');
+                $attach_data = wp_generate_attachment_metadata($attach_id, $bits['file']);
+                wp_update_attachment_metadata($attach_id, $attach_data);
+            } else {
+                $attach_id = 0;
+            }
+            return array('id' => (int)$attach_id, 'url' => $bits['url']);
+        };
+
+        // Upload before/after images and store URLs in meta
+        $before = $upload_asset($item['before_image']);
+        $after  = $upload_asset($item['after_image']);
+
+        if (!empty($before['url'])) {
+            update_post_meta($post_id, '_before_image', esc_url_raw($before['url']));
+        }
+        if (!empty($after['url'])) {
+            update_post_meta($post_id, '_after_image', esc_url_raw($after['url']));
+            // Use AFTER as featured image for nicer preview
+            if ($after['id']) {
+                set_post_thumbnail($post_id, $after['id']);
+            }
+        }
+
+        if (!empty($item['category'])) {
+            update_post_meta($post_id, '_category', sanitize_text_field($item['category']));
+        }
+        if (!empty($item['subtitle'])) {
+            update_post_meta($post_id, '_subtitle', sanitize_text_field($item['subtitle']));
+        }
+
+        $imported++;
+    }
+
+    return array(
+        'imported' => $imported,
+        'skipped'  => $skipped,
+        'total'    => count($items)
+    );
+}
 
 /**
  * Demo Content Importer for Services
@@ -977,6 +1142,103 @@ function lunart_import_demo_pages() {
 }
 
 /**
+ * Create demo menus (primary and footer) and assign to locations
+ */
+function lunart_import_demo_menus() {
+    // Ensure theme locations exist
+    $locations = get_theme_mod('nav_menu_locations');
+    if (!is_array($locations)) {
+        $locations = array();
+    }
+
+    // Helper to get or create a menu
+    $ensure_menu = function($menu_name) {
+        $menu = wp_get_nav_menu_object($menu_name);
+        if (!$menu) {
+            $menu_id = wp_create_nav_menu($menu_name);
+        } else {
+            $menu_id = $menu->term_id;
+        }
+        return (int)$menu_id;
+    };
+
+    // Create Primary menu with common items
+    $primary_menu_id = $ensure_menu(__('Glavni meni', 'lunart'));
+
+    // Collect target pages if they exist
+    $home_url   = home_url('/');
+    $about_page = get_page_by_path('o-nama');
+    $contact_page = get_page_by_path('kontakt');
+
+    // Try to get services and gallery archive links if CPTs are registered
+    $services_archive = get_post_type_archive_link('service');
+    $gallery_archive = get_post_type_archive_link('gallery_item');
+
+    // Helper to ensure a menu item exists (by title + url) before creating
+    $ensure_menu_item = function($menu_id, $title, $url) {
+        $items = wp_get_nav_menu_items($menu_id);
+        if ($items) {
+            foreach ($items as $item) {
+                if ($item->title === $title && untrailingslashit($item->url) === untrailingslashit($url)) {
+                    return $item->ID; // exists
+                }
+            }
+        }
+        return wp_update_nav_menu_item($menu_id, 0, array(
+            'menu-item-title' => $title,
+            'menu-item-url'   => $url,
+            'menu-item-status'=> 'publish'
+        ));
+    };
+
+    // Build primary items
+    $ensure_menu_item($primary_menu_id, __('Početna', 'lunart'), $home_url);
+    if ($gallery_archive) {
+        $ensure_menu_item($primary_menu_id, __('Galerija', 'lunart'), $gallery_archive);
+    }
+    if ($services_archive) {
+        $ensure_menu_item($primary_menu_id, __('Usluge', 'lunart'), $services_archive);
+    }
+    if ($about_page) {
+        $ensure_menu_item($primary_menu_id, __('O nama', 'lunart'), get_permalink($about_page));
+    }
+    if ($contact_page) {
+        $ensure_menu_item($primary_menu_id, __('Kontakt', 'lunart'), get_permalink($contact_page));
+    }
+
+    // Assign to primary location
+    $registered_locations = get_registered_nav_menus();
+    if (isset($registered_locations['primary'])) {
+        $locations['primary'] = $primary_menu_id;
+        set_theme_mod('nav_menu_locations', $locations);
+    }
+
+    // Create Footer menu (optional)
+    $footer_menu_id = $ensure_menu(__('Footer meni', 'lunart'));
+    if ($contact_page) {
+        $ensure_menu_item($footer_menu_id, __('Kontakt', 'lunart'), get_permalink($contact_page));
+    }
+    // Privacy Policy page if exists
+    if (function_exists('get_privacy_policy_url')) {
+        $pp_url = get_privacy_policy_url();
+        if (!empty($pp_url)) {
+            $ensure_menu_item($footer_menu_id, __('Politika privatnosti', 'lunart'), $pp_url);
+        }
+    }
+
+    // Assign to footer location if available
+    if (isset($registered_locations['footer'])) {
+        $locations['footer'] = $footer_menu_id;
+        set_theme_mod('nav_menu_locations', $locations);
+    }
+
+    return array(
+        'primary_menu_id' => $primary_menu_id,
+        'footer_menu_id' => $footer_menu_id,
+    );
+}
+
+/**
  * Admin page for demo content import
  */
 function lunart_add_demo_import_menu() {
@@ -1001,16 +1263,44 @@ function lunart_demo_import_page() {
         echo 'Ukupno: ' . $result['total'] . ' usluga';
         echo '</p></div>';
     }
+
+    if (isset($_POST['import_gallery'])) {
+        $overwrite = isset($_POST['overwrite_existing_gallery']);
+        $result = lunart_import_demo_gallery($overwrite);
+        echo '<div class="notice notice-success"><p>';
+        echo 'Uspešno uvezeno: ' . $result['imported'] . ' radova<br>';
+        echo 'Preskočeno: ' . $result['skipped'] . ' radova<br>';
+        echo 'Ukupno: ' . $result['total'] . ' radova';
+        echo '</p></div>';
+    }
     
     if (isset($_POST['import_pages'])) {
         $result = lunart_import_demo_pages();
         echo '<div class="notice notice-success"><p>Demo stranice su uspešno kreirane!</p></div>';
+    }
+
+    if (isset($_POST['import_menus'])) {
+        $menus = lunart_import_demo_menus();
+        echo '<div class="notice notice-success"><p>Demo meniji su kreirani i dodeljeni lokacijama (Primary i Footer).</p></div>';
     }
     
     ?>
     <div class="wrap">
         <h1>Demo Content Importer</h1>
         <p>Uvezite demo sadržaj za vašu temu.</p>
+
+        <form method="post">
+            <h2>Galerija radova</h2>
+            <p>Uvezite demo radove sa pre/posle slikama, kategorijama i podnaslovima.</p>
+            <label>
+                <input type="checkbox" name="overwrite_existing_gallery" value="1">
+                Prepiši postojeće radove galerije
+            </label>
+            <br><br>
+            <input type="submit" name="import_gallery" class="button button-primary" value="Uvezi Galeriju">
+        </form>
+        
+        <hr style="margin: 30px 0;">
         
         <form method="post">
             <h2>Usluge</h2>
@@ -1029,6 +1319,14 @@ function lunart_demo_import_page() {
             <h2>Stranice</h2>
             <p>Kreirajte demo stranice: O nama i Kontakt.</p>
             <input type="submit" name="import_pages" class="button button-primary" value="Kreiraj Stranice">
+        </form>
+
+        <hr style="margin: 30px 0;">
+
+        <form method="post">
+            <h2>Meniji</h2>
+            <p>Kreirajte i dodelite demo menije za lokacije: Primary i Footer.</p>
+            <input type="submit" name="import_menus" class="button button-primary" value="Kreiraj Menije">
         </form>
     </div>
     <?php
