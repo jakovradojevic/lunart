@@ -1,13 +1,22 @@
 (function(wp){
     if (!wp || !wp.blocks) { return; }
     var el = wp.element.createElement;
+    var Fragment = wp.element.Fragment;
     var __ = wp.i18n.__;
 
-    function serverRenderedPlaceholder(title) {
-        return function(){
-            return el('div', { className: 'lunart-block-editor-placeholder' }, title + ' — ' + __('server rendered', 'lunart'));
-        };
-    }
+    // Resolve ServerSideRender component across WP versions
+    var SSR = (wp.serverSideRender)
+        || (wp.blockEditor && wp.blockEditor.ServerSideRender)
+        || (wp.editor && wp.editor.ServerSideRender);
+
+    var InspectorControls = (wp.blockEditor && wp.blockEditor.InspectorControls) || (wp.editor && wp.editor.InspectorControls);
+    var components = wp.components || {};
+    var PanelBody = components.PanelBody;
+    var TextControl = components.TextControl;
+    var TextareaControl = components.TextareaControl;
+    var RangeControl = components.RangeControl;
+    var SelectControl = components.SelectControl;
+    var __experimentalNumberControl = components.__experimentalNumberControl || components.NumberControl;
 
     // Ensure a custom category exists
     try {
@@ -99,6 +108,52 @@
         { name: 'lunart/cta', title: __('CTA', 'lunart'), icon: 'megaphone' }
     ];
 
+    function labelFromKey(key){
+        return key
+            .replace(/([A-Z])/g, ' $1')
+            .replace(/^./, function(s){ return s.toUpperCase(); })
+            .replace(/Btn/g, ' Button')
+            .replace(/Cta/g, 'CTA');
+    }
+
+    function controlForAttr(key, schema, props){
+        var val = props.attributes[key];
+        var set = function(newVal){
+            var v = newVal;
+            // Number control can send string; normalize
+            if (schema && schema.type === 'number') {
+                v = (newVal === '' || newVal === null || typeof newVal === 'undefined') ? undefined : Number(newVal);
+            }
+            props.setAttributes(((o)=>{ o[key]=v; return o; })({}));
+        };
+        var label = labelFromKey(key);
+        if (schema && schema.type === 'number') {
+            if (RangeControl && (key.toLowerCase().indexOf('limit') !== -1)) {
+                return el(RangeControl, { label: label, value: typeof val==='number'?val: (schema.default||0), onChange: set, min: 1, max: 24 });
+            }
+            if (__experimentalNumberControl) {
+                return el(__experimentalNumberControl, { label: label, value: val, onChange: set, min: 0 });
+            }
+            return el(TextControl, { label: label, type: 'number', value: val, onChange: set });
+        }
+        // Longer text areas by heuristic
+        if (/desc|paragraph/i.test(key)) {
+            return el(TextareaControl, { label: label, value: val, onChange: set, rows: 3 });
+        }
+        // Href/Anchor fields
+        if (/href|anchor/i.test(key)) {
+            return el(TextControl, { label: label, value: val, onChange: set, placeholder: key.toLowerCase().indexOf('href')!==-1 ? 'https://… or mailto:… or #anchor' : '#anchor' });
+        }
+        // Style variant select for CTA
+        if (/stylevariant/i.test(key) && SelectControl) {
+            return el(SelectControl, { label: label, value: val || 'primary', options: [
+                { label: __('Primary', 'lunart'), value: 'primary' },
+                { label: __('Outline', 'lunart'), value: 'outline' }
+            ], onChange: set });
+        }
+        return el(TextControl, { label: label, value: val, onChange: set });
+    }
+
     blocks.forEach(function(info){
         if (!wp.blocks.getBlockType(info.name)) {
             wp.blocks.registerBlockType(info.name, {
@@ -107,7 +162,19 @@
                 category: 'lunart',
                 attributes: ATTR[info.name] || {},
                 supports: { anchor: true },
-                edit: serverRenderedPlaceholder(info.title),
+                edit: function(props){
+                    var schema = ATTR[info.name] || {};
+                    var controls = Object.keys(schema).map(function(k){
+                        return el('div', { key: k }, controlForAttr(k, schema[k], props));
+                    });
+                    var inspector = InspectorControls ? el(InspectorControls, { key: 'controls' },
+                        el(PanelBody, { title: __('Sadržaj', 'lunart'), initialOpen: true, className: 'lunart-inspector-controls' }, controls)
+                    ) : null;
+                    var preview = SSR ? el('div', { className: 'lunart-block-editor-ssr', key: 'preview' }, el(SSR, { block: info.name, attributes: props.attributes }))
+                                       : el('div', { className: 'lunart-block-editor-placeholder', key: 'placeholder' }, info.title + ' — ' + __('server rendered', 'lunart'));
+                    var blockProps = (wp.blockEditor && wp.blockEditor.useBlockProps) ? wp.blockEditor.useBlockProps() : {};
+                    return el('div', blockProps, inspector, preview);
+                },
                 save: function(){ return null; }
             });
         }

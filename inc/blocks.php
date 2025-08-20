@@ -21,7 +21,7 @@ add_action('init', function() {
     wp_register_script(
         'lunart-blocks-editor',
         get_template_directory_uri() . '/js/blocks-editor.js',
-        array('wp-blocks', 'wp-element', 'wp-i18n', 'wp-editor', 'wp-block-editor'),
+        array('wp-blocks', 'wp-element', 'wp-i18n', 'wp-editor', 'wp-block-editor', 'wp-server-side-render', 'wp-components', 'wp-compose'),
         defined('_S_VERSION') ? _S_VERSION : false,
         true
     );

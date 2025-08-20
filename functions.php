@@ -184,6 +184,15 @@ function lunart_scripts() {
 }
 add_action('wp_enqueue_scripts', 'lunart_scripts');
 
+// Load theme styles inside the block editor so SSR previews look correct
+add_action('after_setup_theme', function(){
+    add_theme_support('editor-styles');
+    // Load main theme stylesheet and editor tweaks
+    if (function_exists('add_editor_style')) {
+        add_editor_style(array('style.css', 'editor.css'));
+    }
+});
+
 /**
  * Custom template tags for this theme.
  */
