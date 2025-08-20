@@ -21,7 +21,7 @@ add_action('init', function() {
     wp_register_script(
         'lunart-blocks-editor',
         get_template_directory_uri() . '/js/blocks-editor.js',
-        array('wp-blocks', 'wp-element', 'wp-i18n', 'wp-editor'),
+        array('wp-blocks', 'wp-element', 'wp-i18n', 'wp-editor', 'wp-block-editor'),
         defined('_S_VERSION') ? _S_VERSION : false,
         true
     );
@@ -69,6 +69,7 @@ function lunart_register_hero_block() {
         'supports' => array(
             'anchor' => true,
         ),
+        'editor_script' => 'lunart-blocks-editor',
     );
 
     register_block_type('lunart/hero', $args);
@@ -215,6 +216,7 @@ function lunart_register_services_block() {
         'supports' => array(
             'anchor' => true,
         ),
+        'editor_script' => 'lunart-blocks-editor',
     );
 
     register_block_type('lunart/services', $args);
@@ -323,6 +325,7 @@ function lunart_register_cta_block() {
         'supports' => array(
             'anchor' => true,
         ),
+        'editor_script' => 'lunart-blocks-editor',
     );
 
     register_block_type('lunart/cta', $args);
@@ -364,6 +367,7 @@ function lunart_register_gallery_block() {
             'ctaBtnAnchor' => array('type' => 'string', 'default' => '#gallery')
         ),
         'supports' => array('anchor' => true),
+        'editor_script' => 'lunart-blocks-editor',
     ));
 }
 
@@ -416,6 +420,7 @@ function lunart_register_blog_teaser_block() {
             'ctaBtnAnchor' => array('type' => 'string', 'default' => '#blog'),
         ),
         'supports' => array('anchor' => true),
+        'editor_script' => 'lunart-blocks-editor',
     ));
 }
 

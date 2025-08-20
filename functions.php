@@ -1497,7 +1497,81 @@ function lunart_add_demo_import_menu() {
 }
 add_action('admin_menu', 'lunart_add_demo_import_menu');
 
+// Helper: Purge existing demo content (services, gallery items, specific pages, menus)
+if (!function_exists('lunart_purge_demo_content')) {
+    function lunart_purge_demo_content() {
+        // Delete CPT posts: service, gallery_item
+        $types = array('service', 'gallery_item');
+        foreach ($types as $pt) {
+            $posts = get_posts(array('post_type' => $pt, 'numberposts' => -1, 'post_status' => 'any'));
+            foreach ($posts as $p) {
+                wp_delete_post($p->ID, true);
+            }
+        }
+        // Delete specific pages by slug
+        $slugs = array('pocetna', 'blog', 'o-nama', 'kontakt');
+        foreach ($slugs as $slug) {
+            $page = get_page_by_path($slug);
+            if ($page) {
+                wp_delete_post($page->ID, true);
+            }
+        }
+        // Delete demo menus by name if they exist
+        $menu_names = array(__('Primary meni', 'lunart'), __('Footer meni', 'lunart'));
+        foreach ($menu_names as $mn) {
+            $menu = wp_get_nav_menu_object($mn);
+            if ($menu) {
+                wp_delete_nav_menu($menu->term_id);
+            }
+        }
+        // Clear menu locations to avoid pointing to deleted menus
+        $locations = get_theme_mod('nav_menu_locations');
+        if (is_array($locations)) {
+            foreach ($locations as $loc => $term_id) {
+                $locations[$loc] = 0;
+            }
+            set_theme_mod('nav_menu_locations', $locations);
+        }
+        // Optionally reset front page settings (will be set by import again)
+        update_option('show_on_front', 'posts');
+        delete_option('page_on_front');
+        delete_option('page_for_posts');
+    }
+}
+
 function lunart_demo_import_page() {
+    // Handle ALL content import first (aggregate action)
+    if (isset($_POST['import_all'])) {
+        $did_purge = false;
+        if (!empty($_POST['confirm_delete_all'])) {
+            if (function_exists('lunart_purge_demo_content')) {
+                lunart_purge_demo_content();
+                $did_purge = true;
+            }
+        }
+
+        // Run individual importers
+        $services = lunart_import_demo_services(true);
+        $gallery = lunart_import_demo_gallery(true);
+        $pages_created = lunart_import_demo_pages();
+        $menus = lunart_import_demo_menus();
+        // CF7 is optional; attempt but ignore if plugin not active
+        $cf7_msg = '';
+        if (function_exists('lunart_import_contact_form7')) {
+            $cf7_result = lunart_import_contact_form7();
+            $cf7_msg = $cf7_result['message'];
+        }
+
+        echo '<div class="notice notice-success"><p>';
+        echo ($did_purge ? 'Postojeći demo sadržaj je obrisan.<br>' : '');
+        echo 'Usluge: uvezeno ' . intval($services['imported']) . ', preskočeno ' . intval($services['skipped']) . ', ukupno ' . intval($services['total']) . '.<br>';
+        echo 'Galerija: uvezeno ' . intval($gallery['imported']) . ', preskočeno ' . intval($gallery['skipped']) . ', ukupno ' . intval($gallery['total']) . '.<br>';
+        echo 'Stranice: kreirano/obnovljeno ' . intval($pages_created) . '.<br>';
+        echo 'Meniji: kreirani/dodeljeni.<br>';
+        if (!empty($cf7_msg)) { echo 'Kontakt forma: ' . esc_html($cf7_msg) . '<br>'; }
+        echo 'ALL import završen.';
+        echo '</p></div>';
+    }
     if (isset($_POST['import_services'])) {
         $overwrite = isset($_POST['overwrite_existing']);
         $result = lunart_import_demo_services($overwrite);
@@ -1542,6 +1616,19 @@ function lunart_demo_import_page() {
         <h1>Demo Content Importer</h1>
         <p>Uvezite demo sadržaj za vašu temu.</p>
 
+        <form method="post">
+            <h2>Uvezi SAV Sadržaj</h2>
+            <p>Jednim klikom uvezite: Galeriju, Usluge, Stranice (Početna, Blog, O nama, Kontakt), Menije i Kontakt formu (ako je CF7 aktivan).</p>
+            <label style="display:inline-flex;align-items:center;gap:8px;">
+                <input type="checkbox" name="confirm_delete_all" value="1">
+                Obriši postojeći sadržaj (potvrda)
+            </label>
+            <br><br>
+            <input type="submit" name="import_all" class="button button-primary" value="Uvezi SAV Sadržaj">
+        </form>
+        
+        <hr style="margin: 30px 0;">
+        
         <form method="post">
             <h2>Galerija radova</h2>
             <p>Uvezite demo radove sa pre/posle slikama, kategorijama i podnaslovima.</p>
