@@ -369,6 +369,36 @@ function lunart_customize_register($wp_customize) {
         ),
         'description' => __('Space between logo elements', 'lunart')
     ));
+
+    // Move all Logo controls to the core Site Identity section (title_tagline)
+    $lunart_logo_controls = array(
+        'lunart_logo_type',
+        'lunart_logo_image',
+        'lunart_logo_text',
+        'lunart_logo_subtitle',
+        'lunart_logo_font_family',
+        'lunart_logo_font_size',
+        'lunart_logo_font_weight',
+        'lunart_logo_color',
+        'lunart_logo_subtitle_font_size',
+        'lunart_logo_subtitle_color',
+        'lunart_logo_alignment',
+        'lunart_logo_spacing'
+    );
+    foreach ($lunart_logo_controls as $control_id) {
+        $control = $wp_customize->get_control($control_id);
+        if ($control) {
+            $control->section = 'title_tagline';
+            // Keep them grouped after core fields
+            if (!isset($control->priority) || $control->priority < 60) {
+                $control->priority = 60;
+            }
+        }
+    }
+    // Remove the old custom Logo section so options are only under Site Identity
+    if ($wp_customize->get_section('lunart_logo_options')) {
+        $wp_customize->remove_section('lunart_logo_options');
+    }
 }
 add_action('customize_register', 'lunart_customize_register');
 
@@ -405,6 +435,7 @@ function lunart_sanitize_checkbox($checked) {
  * Get logo HTML based on customizer settings
  */
 function lunart_get_logo_html() {
+    // Read legacy Logo Options first
     $logo_type = get_theme_mod('lunart_logo_type', 'text');
     $logo_image = get_theme_mod('lunart_logo_image', '');
     $logo_text = get_theme_mod('lunart_logo_text', get_bloginfo('name'));
@@ -412,52 +443,62 @@ function lunart_get_logo_html() {
     $logo_alignment = get_theme_mod('lunart_logo_alignment', 'left');
     $logo_spacing = get_theme_mod('lunart_logo_spacing', '20');
 
-    // Fallback to text logo if no image is set and type is image
-    if ($logo_type === 'image' && empty($logo_image)) {
-        $logo_type = 'text';
-    }
+    // If user selected an image in Logo Options, honor it for everyone (logged-in or not)
+    $has_legacy_image = (!empty($logo_image) && ($logo_type === 'image' || $logo_type === 'both'));
 
-    $logo_class = 'lunart-logo lunart-logo-' . $logo_type . ' lunart-logo-' . $logo_alignment;
-
-    $output = '<div class="' . esc_attr($logo_class) . '">';
-
-    if ($logo_type === 'image' || $logo_type === 'both') {
-        if (!empty($logo_image)) {
-            $output .= '<div class="lunart-logo-image">';
-            $output .= '<img src="' . esc_url($logo_image) . '" alt="' . esc_attr($logo_text) . '" class="lunart-logo-img">';
+    if ($has_legacy_image) {
+        $logo_class = 'lunart-logo lunart-logo-' . $logo_type . ' lunart-logo-' . $logo_alignment;
+        $output = '<div class="' . esc_attr($logo_class) . '">';
+        // Image part
+        $output .= '<div class="lunart-logo-image">';
+        $output .= '<a href="' . esc_url(home_url('/')) . '" class="custom-logo-link" rel="home">';
+        $output .= '<img src="' . esc_url($logo_image) . '" alt="' . esc_attr($logo_text) . '" class="lunart-logo-img">';
+        $output .= '</a>';
+        $output .= '</div>';
+        // Optional text part if type is both
+        if ($logo_type === 'both') {
+            $output .= '<div class="lunart-logo-text">';
+            $output .= '<span class="lunart-logo-title">' . esc_html($logo_text) . '</span>';
+            if (!empty($logo_subtitle)) {
+                $output .= '<span class="lunart-logo-subtitle">' . esc_html($logo_subtitle) . '</span>';
+            }
             $output .= '</div>';
         }
-    }
-
-    if ($logo_type === 'text' || $logo_type === 'both') {
-        $logo_font_family = get_theme_mod('lunart_logo_font_family', 'Inria Serif');
-        $logo_font_size = get_theme_mod('lunart_logo_font_size', '32');
-        $logo_font_weight = get_theme_mod('lunart_logo_font_weight', '700');
-        $logo_color = get_theme_mod('lunart_logo_color', '#333333');
-
-        $output .= '<div class="lunart-logo-text">';
-        $output .= '<h1 class="lunart-logo-title">';
-        $output .= esc_html($logo_text);
-        $output .= '</h1>';
-
-        if (!empty($logo_subtitle)) {
-            $subtitle_font_size = get_theme_mod('lunart_logo_subtitle_font_size', '14');
-            $subtitle_color = get_theme_mod('lunart_logo_subtitle_color', '#666666');
-            
-            $output .= '<p class="lunart-logo-subtitle">';
-            $output .= esc_html($logo_subtitle);
-            $output .= '</p>';
-        }
         $output .= '</div>';
+        return $output;
     }
 
+    // Otherwise prefer core Site Identity (Custom Logo)
+    if (function_exists('has_custom_logo') && has_custom_logo()) {
+        // Prefer building custom logo manually to avoid edge cases where get_custom_logo() returns empty outside Customizer
+        $logo_id = (int) get_theme_mod('custom_logo');
+        if ($logo_id) {
+            $img = wp_get_attachment_image_src($logo_id, 'full');
+            if ($img && !empty($img[0])) {
+                $logo_url = $img[0];
+                $logo_class = 'lunart-logo lunart-logo-image lunart-logo-' . $logo_alignment;
+                $output = '<div class="' . esc_attr($logo_class) . '">';
+                $output .= '<div class="lunart-logo-image">';
+                $output .= '<a href="' . esc_url(home_url('/')) . '" class="custom-logo-link" rel="home">';
+                $output .= '<img src="' . esc_url($logo_url) . '" alt="' . esc_attr(get_bloginfo('name')) . '" class="custom-logo lunart-logo-img">';
+                $output .= '</a>';
+                $output .= '</div>';
+                $output .= '</div>';
+                return $output;
+            }
+        }
+    }
+
+    // Fallback to text logo (from Logo Options or site title/tagline)
+    $logo_class = 'lunart-logo lunart-logo-text lunart-logo-' . $logo_alignment;
+    $output = '<div class="' . esc_attr($logo_class) . '">';
+    $output .= '<div class="lunart-logo-text">';
+    $output .= '<a href="' . esc_url(home_url('/')) . '" class="lunart-logo-title" rel="home">' . esc_html($logo_text) . '</a>';
+    if (!empty($logo_subtitle)) {
+        $output .= '<span class="lunart-logo-subtitle">' . esc_html($logo_subtitle) . '</span>';
+    }
     $output .= '</div>';
-
-    // Debug output (remove in production)
-    if (current_user_can('administrator')) {
-        $output .= '<!-- Logo Debug: Type=' . esc_html($logo_type) . ', Text=' . esc_html($logo_text) . ', Subtitle=' . esc_html($logo_subtitle) . ' -->';
-    }
-
+    $output .= '</div>';
     return $output;
 }
 
@@ -577,7 +618,7 @@ function lunart_logo_styles() {
 
     wp_add_inline_style('lunart-style', $custom_css);
 }
-add_action('wp_enqueue_scripts', 'lunart_logo_styles');
+add_action('wp_enqueue_scripts', 'lunart_logo_styles', 20);
 
 /**
  * Render the site title for the selective refresh partial.

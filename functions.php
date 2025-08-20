@@ -150,6 +150,19 @@ function lunart_widgets_init() {
             'after_title'   => '</h2>',
         )
     );
+
+    // Footer widget area for fully editable footer
+    register_sidebar(
+        array(
+            'name'          => esc_html__('Footer', 'lunart'),
+            'id'            => 'footer-1',
+            'description'   => esc_html__('Add footer widgets/blocks here to fully control footer content.', 'lunart'),
+            'before_widget' => '<section id="%1$s" class="widget %2$s">',
+            'after_widget'  => '</section>',
+            'before_title'  => '<h2 class="widget-title">',
+            'after_title'   => '</h2>',
+        )
+    );
 }
 add_action('widgets_init', 'lunart_widgets_init');
 
@@ -187,6 +200,13 @@ require get_template_directory() . '/inc/template-functions.php';
 require get_template_directory() . '/inc/customizer.php';
 
 /**
+ * Gutenberg Blocks (Lunart)
+ */
+if (file_exists(get_template_directory() . '/inc/blocks.php')) {
+    require get_template_directory() . '/inc/blocks.php';
+}
+
+/**
  * Load Jetpack compatibility file.
  */
 if (defined('JETPACK__VERSION')) {
@@ -203,6 +223,200 @@ function lunart_woocommerce_support() {
     add_theme_support('wc-product-gallery-slider');
 }
 add_action('after_setup_theme', 'lunart_woocommerce_support');
+
+/**
+ * Shortcode: Services Grid
+ * Usage: [lunart_services limit="6"]
+ */
+function lunart_services_shortcode($atts) {
+    $atts = shortcode_atts(array(
+        'limit' => 6,
+    ), $atts);
+
+    $args = array(
+        'post_type' => 'service',
+        'posts_per_page' => intval($atts['limit']),
+        'post_status' => 'publish',
+        'orderby' => 'date',
+        'order' => 'DESC'
+    );
+
+    $query = new WP_Query($args);
+    $output = '<div class="services-grid">';
+
+    if ($query->have_posts()) {
+        while ($query->have_posts()) { $query->the_post();
+            $taksativne_opcije = get_post_meta(get_the_ID(), '_taksativne_opcije', true);
+            $output .= '<div class="service-card elegant-border elegant-hover">';
+            $output .= '<div class="card-header">';
+            $output .= lunart_get_service_icon_html(get_the_ID());
+            $output .= '<h3 class="service-title">' . esc_html(get_the_title()) . '</h3>';
+            $output .= '<p class="service-description">' . esc_html(get_the_excerpt()) . '</p>';
+            $output .= '</div>';
+            $output .= '<div class="card-content">';
+            if (!empty($taksativne_opcije) && is_array($taksativne_opcije)) {
+                $output .= '<ul class="service-details">';
+                foreach ($taksativne_opcije as $opcija) {
+                    $output .= '<li>' . esc_html($opcija) . '</li>';
+                }
+                $output .= '</ul>';
+            }
+            $output .= '<a href="' . esc_url(get_permalink()) . '" class="btn btn-outline w-full elegant-hover border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent">Saznajte više</a>';
+            $output .= '</div>';
+            $output .= '</div>';
+        }
+        wp_reset_postdata();
+    } else {
+        $output .= '<div class="col-span-full text-center py-12">';
+        $output .= '<p class="text-muted-foreground text-lg">Trenutno nema usluga. Dodajte ih kroz admin panel.</p>';
+        $output .= '<a href="' . esc_url(admin_url('edit.php?post_type=service')) . '" class="btn btn-primary mt-4 elegant-hover">Dodaj Uslugu</a>';
+        $output .= '</div>';
+    }
+
+    $output .= '</div>';
+    return $output;
+}
+add_shortcode('lunart_services', 'lunart_services_shortcode');
+
+/**
+ * Block Patterns: Lunart Homepage Sections
+ */
+function lunart_register_block_patterns() {
+    if (!function_exists('register_block_pattern')) {
+        return;
+    }
+
+    // Category
+    if (function_exists('register_block_pattern_category')) {
+        register_block_pattern_category('lunart', array(
+            'label' => __('Lunart Obrasci', 'lunart'),
+        ));
+    }
+
+    // Hero Pattern
+    register_block_pattern('lunart/hero', array(
+        'title'       => __('Lunart Hero', 'lunart'),
+        'description' => __('Hero sekcija sa naslovom, podnaslovom i dugmadima.', 'lunart'),
+        'categories'  => array('lunart'),
+        'content'     =>
+            '<!-- wp:group {"className":"hero-section hero-background vintage-paper-texture","layout":{"type":"constrained"}} -->
+            <div class="wp-block-group hero-section hero-background vintage-paper-texture"><div class="container text-center relative z-10 pt-20 pb-20">
+            <!-- wp:group {"className":"hero-content","layout":{"type":"constrained"}} -->
+            <div class="wp-block-group hero-content">
+            <!-- wp:heading {"textAlign":"center","level":1,"className":"hero-title"} -->
+            <h1 class="wp-block-heading has-text-align-center hero-title"><span class="gradient-text">Čuvamo Umetnost</span><span class="block mt-4 text-foreground">za Buduće Generacije</span></h1>
+            <!-- /wp:heading -->
+            
+            <!-- wp:paragraph {"align":"center","className":"hero-subtitle max-w-4xl mx-auto"} -->
+            <p class="has-text-align-center hero-subtitle max-w-4xl mx-auto">Stručna konzervacija i restauracija umetničkih dela na papiru - crteža, akvarela, knjiga i plakata.</p>
+            <!-- /wp:paragraph -->
+            
+            <!-- wp:buttons {"className":"hero-buttons"} -->
+            <div class="wp-block-buttons hero-buttons"><!-- wp:button {"className":"btn btn-primary btn-xl elegant-hover shadow-lg"} -->
+            <div class="wp-block-button btn btn-primary btn-xl elegant-hover shadow-lg"><a class="wp-block-button__link wp-element-button" href="#gallery">Pogledajte Naše Radove</a></div>
+            <!-- /wp:button -->
+            
+            <!-- wp:button {"className":"btn btn-outline btn-xl border-2 border-primary\/40 hover:bg-primary\/10 hover:border-primary\/60 bg-background\/90 backdrop-blur-sm elegant-hover shadow-lg text-foreground"} -->
+            <div class="wp-block-button btn btn-outline btn-xl border-2 border-primary/40 hover:bg-primary/10 hover:border-primary/60 bg-background/90 backdrop-blur-sm elegant-hover shadow-lg text-foreground"><a class="wp-block-button__link wp-element-button" href="#services">Saznajte o Konzervaciji</a></div>
+            <!-- /wp:button --></div>
+            <!-- /wp:buttons -->
+            </div>
+            <!-- /wp:group -->
+            </div></div>
+            <!-- /wp:group -->'
+    ));
+
+    // Services Pattern (uses shortcode block)
+    register_block_pattern('lunart/services', array(
+        'title'       => __('Lunart Usluge', 'lunart'),
+        'description' => __('Sekcija sa dinamičkim gridom usluga.', 'lunart'),
+        'categories'  => array('lunart'),
+        'content'     =>
+            '<!-- wp:group {"className":"services-section","layout":{"type":"constrained"}} -->
+            <div class="wp-block-group services-section"><div class="container relative z-10">
+            <!-- wp:heading {"textAlign":"center","level":2,"className":"text-4xl md:text-5xl font-serif font-bold mb-6 gradient-text"} -->
+            <h2 class="wp-block-heading has-text-align-center text-4xl md:text-5xl font-serif font-bold mb-6 gradient-text">Naše Usluge</h2>
+            <!-- /wp:heading -->
+            
+            <!-- wp:paragraph {"align":"center","className":"text-xl text-muted-foreground max-w-3xl mx-auto"} -->
+            <p class="has-text-align-center text-xl text-muted-foreground max-w-3xl mx-auto">Pružamo kompletne usluge konzervacije i restauracije sa više od 15 godina iskustva.</p>
+            <!-- /wp:paragraph -->
+            
+            <!-- wp:shortcode -->[lunart_services limit="6"]<!-- /wp:shortcode -->
+            </div></div>
+            <!-- /wp:group -->'
+    ));
+
+    // Gallery Pattern (uses existing shortcode)
+    register_block_pattern('lunart/gallery', array(
+        'title'       => __('Lunart Galerija', 'lunart'),
+        'description' => __('Sekcija sa dinamičkom galerijom radova (pre/posle).', 'lunart'),
+        'categories'  => array('lunart'),
+        'content'     =>
+            '<!-- wp:group {"className":"gallery-section","layout":{"type":"constrained"}} -->
+            <div class="wp-block-group gallery-section"><div class="container relative z-10">
+            <!-- wp:heading {"textAlign":"center","level":2,"className":"text-4xl md:text-5xl font-serif font-bold mb-6 gradient-text"} -->
+            <h2 class="wp-block-heading has-text-align-center text-4xl md:text-5xl font-serif font-bold mb-6 gradient-text">Galerija Radova</h2>
+            <!-- /wp:heading -->
+            
+            <!-- wp:paragraph {"align":"center","className":"text-xl text-muted-foreground max-w-3xl mx-auto"} -->
+            <p class="has-text-align-center text-xl text-muted-foreground max-w-3xl mx-auto">Pogledajte transformacije koje smo ostvarili — svaki projekat je jedinstvena priča.</p>
+            <!-- /wp:paragraph -->
+            
+            <!-- wp:shortcode -->[lunart_gallery limit="12"]<!-- /wp:shortcode -->
+            </div></div>
+            <!-- /wp:group -->'
+    ));
+
+    // About Pattern
+    register_block_pattern('lunart/about', array(
+        'title'       => __('Lunart O nama', 'lunart'),
+        'description' => __('Sekcija „O nama“ sa citatom.', 'lunart'),
+        'categories'  => array('lunart'),
+        'content'     =>
+            '<!-- wp:group {"className":"about-section","layout":{"type":"constrained"}} -->
+            <div class="wp-block-group about-section"><div class="container text-center relative z-10">
+            <!-- wp:heading {"textAlign":"center","level":2,"className":"text-4xl md:text-5xl font-serif font-bold mb-6 gradient-text"} -->
+            <h2 class="wp-block-heading has-text-align-center text-4xl md:text-5xl font-serif font-bold mb-6 gradient-text">O Lunart-u</h2>
+            <!-- /wp:heading -->
+            
+            <!-- wp:paragraph {"align":"center","className":"text-lg text-muted-foreground leading-relaxed mb-8"} -->
+            <p class="has-text-align-center text-lg text-muted-foreground leading-relaxed mb-8">Lunart je specijalizovana ustanova posvećena očuvanju kulturnog nasleđa kroz stručnu konzervaciju i restauraciju umetničkih dela na papiru.</p>
+            <!-- /wp:paragraph -->
+            
+            <!-- wp:quote {"className":"about-quote"} -->
+            <blockquote class="wp-block-quote about-quote"><p class="about-quote-text">“Svaki rad koji prođe kroz naše ruke nije samo restauriran - on je vraćen u život, spreman da inspiriše buduće generacije.”</p><cite class="about-quote-author">Tim Lunart</cite></blockquote>
+            <!-- /wp:quote -->
+            </div></div>
+            <!-- /wp:group -->'
+    ));
+
+    // Blog Placeholder Pattern
+    register_block_pattern('lunart/blog', array(
+        'title'       => __('Lunart Blog', 'lunart'),
+        'description' => __('Sekcija blog najave sa CTA.', 'lunart'),
+        'categories'  => array('lunart'),
+        'content'     =>
+            '<!-- wp:group {"className":"blog-section","layout":{"type":"constrained"}} -->
+            <div class="wp-block-group blog-section"><div class="container text-center relative z-10">
+            <!-- wp:heading {"textAlign":"center","level":2,"className":"text-4xl md:text-5xl font-serif font-bold mb-6 gradient-text"} -->
+            <h2 class="wp-block-heading has-text-align-center text-4xl md:text-5xl font-serif font-bold mb-6 gradient-text">Blog o Konzervaciji</h2>
+            <!-- /wp:heading -->
+            
+            <!-- wp:paragraph {"align":"center","className":"text-lg text-muted-foreground max-w-2xl mx-auto mb-8"} -->
+            <p class="has-text-align-center text-lg text-muted-foreground max-w-2xl mx-auto mb-8">Saznajte više o tehnikama konzervacije, istoriji umetnosti i našim najnovijim projektima.</p>
+            <!-- /wp:paragraph -->
+            
+            <!-- wp:buttons -->
+            <div class="wp-block-buttons"><!-- wp:button {"className":"btn btn-primary btn-lg elegant-hover"} -->
+            <div class="wp-block-button btn btn-primary btn-lg elegant-hover"><a class="wp-block-button__link wp-element-button" href="#blog">Pratite Blog</a></div>
+            <!-- /wp:button --></div>
+            <!-- /wp:buttons -->
+            </div></div>
+            <!-- /wp:group -->'
+    ));
+}
+add_action('init', 'lunart_register_block_patterns');
 
 /**
  * Customize WooCommerce wrapper
@@ -1047,6 +1261,18 @@ function lunart_import_demo_services($overwrite = false) {
 function lunart_import_demo_pages() {
     $pages_data = array(
         array(
+            'title' => 'Početna',
+            'slug' => 'pocetna',
+            'content' => '<!-- wp:lunart/hero /--><!-- wp:lunart/services /--><!-- wp:lunart/gallery /--><!-- wp:lunart/blog-teaser /--><!-- wp:lunart/about /-->',
+            'template' => 'page'
+        ),
+        array(
+            'title' => 'Blog',
+            'slug' => 'blog',
+            'content' => '',
+            'template' => 'page'
+        ),
+        array(
             'title' => 'O nama',
             'slug' => 'o-nama',
             'content' => '
@@ -1117,11 +1343,16 @@ function lunart_import_demo_pages() {
     
     $created_count = 0;
     
+    $home_id = 0;
+    $blog_id = 0;
+
     foreach ($pages_data as $page_data) {
         // Check if page already exists
         $existing_page = get_page_by_path($page_data['slug']);
         
-        if (!$existing_page) {
+        if ($existing_page) {
+            $page_id = $existing_page->ID;
+        } else {
             $page_args = array(
                 'post_title' => $page_data['title'],
                 'post_content' => $page_data['content'],
@@ -1136,6 +1367,20 @@ function lunart_import_demo_pages() {
                 $created_count++;
             }
         }
+
+        // Track home/blog IDs
+        if ($page_data['slug'] === 'pocetna') {
+            $home_id = intval($page_id);
+        } elseif ($page_data['slug'] === 'blog') {
+            $blog_id = intval($page_id);
+        }
+    }
+
+    // Assign Front Page and Posts Page if available
+    if ($home_id && $blog_id) {
+        update_option('show_on_front', 'page');
+        update_option('page_on_front', $home_id);
+        update_option('page_for_posts', $blog_id);
     }
     
     return $created_count;
@@ -1256,7 +1501,6 @@ function lunart_demo_import_page() {
     if (isset($_POST['import_services'])) {
         $overwrite = isset($_POST['overwrite_existing']);
         $result = lunart_import_demo_services($overwrite);
-        
         echo '<div class="notice notice-success"><p>';
         echo 'Uspešno uvezeno: ' . $result['imported'] . ' usluga<br>';
         echo 'Preskočeno: ' . $result['skipped'] . ' usluga<br>';
@@ -1282,6 +1526,15 @@ function lunart_demo_import_page() {
     if (isset($_POST['import_menus'])) {
         $menus = lunart_import_demo_menus();
         echo '<div class="notice notice-success"><p>Demo meniji su kreirani i dodeljeni lokacijama (Primary i Footer).</p></div>';
+    }
+
+    if (isset($_POST['import_cf7'])) {
+        $cf7_result = lunart_import_contact_form7();
+        if ($cf7_result['status'] === 'success') {
+            echo '<div class="notice notice-success"><p>' . esc_html($cf7_result['message']) . '</p></div>';
+        } else {
+            echo '<div class="notice notice-warning"><p>' . esc_html($cf7_result['message']) . '</p></div>';
+        }
     }
     
     ?>
@@ -1328,6 +1581,69 @@ function lunart_demo_import_page() {
             <p>Kreirajte i dodelite demo menije za lokacije: Primary i Footer.</p>
             <input type="submit" name="import_menus" class="button button-primary" value="Kreiraj Menije">
         </form>
+
+        <hr style="margin: 30px 0;">
+
+        <form method="post">
+            <h2>Kontakt forma (Contact Form 7)</h2>
+            <p>Dodaje osnovnu kontakt formu i ubacuje shortcode na stranicu Kontakt (ako je plugin aktivan).</p>
+            <input type="submit" name="import_cf7" class="button" value="Kreiraj Kontakt Formu">
+            <p style="margin-top:8px;color:#666;">Napomena: Ne može automatski instalirati plugin. Prvo instalirajte i aktivirajte „Contact Form 7“ kroz Plugins.</p>
+        </form>
     </div>
     <?php
+}
+
+// Helper: Create a Contact Form 7 default form and inject into Kontakt page
+if (!function_exists('lunart_import_contact_form7')) {
+    function lunart_import_contact_form7() {
+        if (!class_exists('WPCF7_ContactForm')) {
+            return array(
+                'status' => 'error',
+                'message' => 'Contact Form 7 nije aktivan. Molimo instalirajte i aktivirajte plugin, pa pokušajte ponovo.'
+            );
+        }
+
+        // Check if a form with our title already exists
+        $form_title = 'Kontakt forma (Lunart)';
+        $existing = get_posts(array(
+            'post_type' => 'wpcf7_contact_form',
+            'title' => $form_title,
+            'numberposts' => 1,
+        ));
+
+        if (!empty($existing)) {
+            $form_id = $existing[0]->ID;
+        } else {
+            $form = WPCF7_ContactForm::get_template();
+            $form->set_properties(array(
+                'title' => $form_title,
+                'form' => "[text* your-name placeholder\"Ime i prezime\"]\n[email* your-email placeholder\"Email\"]\n[tel your-phone placeholder\"Telefon (opciono)\"]\n[textarea your-message placeholder\"Poruka\"]\n[submit \"Pošalji\"]",
+                'mail' => array(
+                    'active' => true,
+                ),
+            ));
+            $form->save();
+            $form_id = $form->id();
+        }
+
+        // Insert shortcode into Kontakt page if it exists
+        $contact_page = get_page_by_path('kontakt');
+        if ($contact_page) {
+            $shortcode = '[contact-form-7 id="' . intval($form_id) . '" title="' . esc_attr($form_title) . '"]';
+            // Append if not already present
+            if (strpos($contact_page->post_content, '[contact-form-7') === false) {
+                $updated = array(
+                    'ID' => $contact_page->ID,
+                    'post_content' => $contact_page->post_content . "\n\n" . $shortcode,
+                );
+                wp_update_post($updated);
+            }
+        }
+
+        return array(
+            'status' => 'success',
+            'message' => 'Kontakt forma je spremna. Ako Kontakt stranica postoji, shortcode je dodat.'
+        );
+    }
 }

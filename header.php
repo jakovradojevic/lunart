@@ -18,9 +18,7 @@
         <nav class="navigation">
             <div class="container">
                 <div class="logo">
-                    <a href="<?php echo esc_url(home_url('/')); ?>">
-                        <?php echo lunart_get_logo_html(); ?>
-                    </a>
+                    <?php echo lunart_get_logo_html(); ?>
                 </div>
 
                 <div class="nav-menu">
