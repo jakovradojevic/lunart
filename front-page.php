@@ -10,7 +10,7 @@
 
 get_header(); ?>
 
-<div class="container front-page-content">
+<main id="primary" class="site-main front-page-content">
     <?php if (have_posts()) : while (have_posts()) : the_post(); ?>
         <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
             <div class="entry-content">
@@ -18,6 +18,6 @@ get_header(); ?>
             </div>
         </article>
     <?php endwhile; endif; ?>
-</div>
+</main>
 
 <?php get_footer();
