@@ -1267,6 +1267,114 @@ function lunart_import_demo_services($overwrite = false) {
 /**
  * Import demo pages (O nama, Kontakt)
  */
+// Demo blog posts dataset (related to conservation/restoration)
+function lunart_get_demo_posts_data() {
+    return array(
+        array(
+            'title' => 'Kako čuvati akvarele: vodič za vlasnike',
+            'slug' => 'kako-cuvati-akvarele',
+            'excerpt' => 'Praktični saveti za očuvanje akvarela – od pravilnog uokvirivanja do kontrole vlage.',
+            'content' => "<p>Akvarel je izuzetno osetljiva tehnika. Pigmenti su vodorastvorljivi i lako reaguju na vlagu i UV svetlo. Pravilno uokvirivanje sa paspartuom bez kiseline (acid-free) i staklom sa UV zaštitom je prvi korak.</p><p>Održavajte ujednačenu vlažnost (oko 45–55%) i izbegavajte nagle temperaturne promene. Ne kačite radove iznad radijatora ili u kupatilu.</p>",
+            'featured_image' => 'restored-watercolor-painting.png'
+        ),
+        array(
+            'title' => 'Restauracija starih plakata: šta je moguće popraviti?',
+            'slug' => 'restauracija-starih-plakata',
+            'excerpt' => 'Od cepanja do diskoloracije – mogućnosti i granice restauracije vintage postera.',
+            'content' => "<p>Vintage plakati često stižu sa naborima, cepanjima i žutim flekama. Konzervatorske intervencije mogu stabilizovati papir, sanirati poderotine i estetski integrišiti nedostajuće delove.</p><p>Važno je razlikovati konzervaciju (stabilizaciju) od retuširanja (estetske korekcije). Naš pristup je minimalno invazivan i reverzibilan.</p>",
+            'featured_image' => 'restored-vintage-poster.png'
+        ),
+        array(
+            'title' => 'Konzervacija rukopisa i knjiga: osnovni principi',
+            'slug' => 'konzervacija-rukopisa-i-knjiga',
+            'excerpt' => 'Kako pristupamo starim rukopisima i knjigama i koje materijale koristimo.',
+            'content' => "<p>Rukopisi zahtevaju specifičan režim čuvanja. Koristimo materijale bez kiseline, neutralne mapne kutije i specijalne lepkove koji ne oštećuju celulozna vlakna.</p><p>Pre intervencije radi se detaljna procena stanja i plan tretmana koji uključuje suvo čišćenje, ispravljanje deformacija i lokalne zahvate.</p>",
+            'featured_image' => 'preserved-manuscript-pages.png'
+        ),
+        array(
+            'title' => 'Ugalj i olovka: razlike u restauraciji crteža',
+            'slug' => 'ugalj-i-olovka-restauracija',
+            'excerpt' => 'Zašto crteži ugljem traže drugačiji tretman u odnosu na olovku.',
+            'content' => "<p>Crteži ugljem imaju labav pigment koji se lako razmazuje. Fiksiranje se radi pažljivo i ciljano, a intervencije su minimalne.</p><p>Kod olovke je pigment stabilniji, pa je fokus na stabilizaciji papira i uklanjanju mrlja.</p>",
+            'featured_image' => 'conserved-charcoal-drawing.png'
+        ),
+        array(
+            'title' => 'Šta znači „acid-free“ i zašto je važno?',
+            'slug' => 'sta-znaci-acid-free',
+            'excerpt' => 'Kratko objašnjenje pojma „bez kiseline“ u materijalima za uokviravanje i arhiviranje.',
+            'content' => "<p>„Acid-free“ označava materijale sa neutralnim pH koji ne izazivaju ubrzano starenje papira. Za mapne kutije, paspartue i pozadine birajte isključivo arhivske, acid-free varijante.</p>",
+            'featured_image' => 'preserved-manuscript-pages.png'
+        ),
+    );
+}
+
+function lunart_import_demo_posts($overwrite = false) {
+    $posts_data = lunart_get_demo_posts_data();
+    $imported = 0; $skipped = 0;
+
+    // Ensure categories exist
+    $cat_names = array('Konzervacija', 'Restauracija');
+    $cat_ids = array();
+    foreach ($cat_names as $cn) {
+        $term = term_exists($cn, 'category');
+        if (!$term) { $term = wp_insert_term($cn, 'category'); }
+        if (!is_wp_error($term)) { $cat_ids[] = (int) (is_array($term) ? $term['term_id'] : $term); }
+    }
+
+    $tags = array('konzervacija', 'restauracija', 'papir');
+
+    foreach ($posts_data as $pd) {
+        $existing = get_page_by_path($pd['slug'], OBJECT, 'post');
+        if ($existing && !$overwrite) { $skipped++; continue; }
+
+        $post_args = array(
+            'post_title' => $pd['title'],
+            'post_name' => $pd['slug'],
+            'post_excerpt' => $pd['excerpt'],
+            'post_content' => $pd['content'],
+            'post_status' => 'publish',
+            'post_type' => 'post',
+            'post_author' => 1,
+            'post_category' => $cat_ids,
+            'tags_input' => $tags,
+        );
+
+        if ($existing && $overwrite) { $post_args['ID'] = $existing->ID; $post_id = wp_update_post($post_args); }
+        else { $post_id = wp_insert_post($post_args); }
+
+        if (!is_wp_error($post_id)) {
+            // Mark as demo
+            update_post_meta($post_id, '_lunart_demo', 1);
+            // Set featured image from theme assets
+            if (!empty($pd['featured_image'])) {
+                $image_path = get_template_directory() . '/assets/' . $pd['featured_image'];
+                if (file_exists($image_path)) {
+                    $upload = wp_upload_bits($pd['featured_image'], null, file_get_contents($image_path));
+                    if (!$upload['error']) {
+                        $wp_filetype = wp_check_filetype($pd['featured_image'], null);
+                        $attachment = array(
+                            'post_mime_type' => $wp_filetype['type'],
+                            'post_title' => preg_replace('/\.[^.]+$/', '', $pd['featured_image']),
+                            'post_content' => '',
+                            'post_status' => 'inherit'
+                        );
+                        $attach_id = wp_insert_attachment($attachment, $upload['file'], $post_id);
+                        if (!is_wp_error($attach_id)) {
+                            require_once(ABSPATH . 'wp-admin/includes/image.php');
+                            $attach_data = wp_generate_attachment_metadata($attach_id, $upload['file']);
+                            wp_update_attachment_metadata($attach_id, $attach_data);
+                            set_post_thumbnail($post_id, $attach_id);
+                        }
+                    }
+                }
+            }
+            $imported++;
+        }
+    }
+
+    return array('imported' => $imported, 'skipped' => $skipped, 'total' => count($posts_data));
+}
+
 function lunart_import_demo_pages() {
     $pages_data = array(
         array(
@@ -1423,6 +1531,7 @@ function lunart_import_demo_menus() {
     $home_url   = home_url('/');
     $about_page = get_page_by_path('o-nama');
     $contact_page = get_page_by_path('kontakt');
+    $blog_page = get_page_by_path('blog');
 
     // Try to get services and gallery archive links if CPTs are registered
     $services_archive = get_post_type_archive_link('service');
@@ -1455,6 +1564,9 @@ function lunart_import_demo_menus() {
     }
     if ($about_page) {
         $ensure_menu_item($primary_menu_id, __('O nama', 'lunart'), get_permalink($about_page));
+    }
+    if ($blog_page) {
+        $ensure_menu_item($primary_menu_id, __('Blog', 'lunart'), get_permalink($blog_page));
     }
     if ($contact_page) {
         $ensure_menu_item($primary_menu_id, __('Kontakt', 'lunart'), get_permalink($contact_page));
@@ -1509,7 +1621,7 @@ add_action('admin_menu', 'lunart_add_demo_import_menu');
 // Helper: Purge existing demo content (services, gallery items, specific pages, menus)
 if (!function_exists('lunart_purge_demo_content')) {
     function lunart_purge_demo_content() {
-        // Delete CPT posts: service, gallery_item
+        // Delete CPT posts: service, gallery_item and demo blog posts
         $types = array('service', 'gallery_item');
         foreach ($types as $pt) {
             $posts = get_posts(array('post_type' => $pt, 'numberposts' => -1, 'post_status' => 'any'));
@@ -1517,6 +1629,15 @@ if (!function_exists('lunart_purge_demo_content')) {
                 wp_delete_post($p->ID, true);
             }
         }
+        // Delete demo blog posts (flagged by meta)
+        $demo_posts = get_posts(array(
+            'post_type' => 'post',
+            'numberposts' => -1,
+            'post_status' => 'any',
+            'meta_key' => '_lunart_demo',
+            'meta_value' => 1,
+        ));
+        foreach ($demo_posts as $dp) { wp_delete_post($dp->ID, true); }
         // Delete specific pages by slug
         $slugs = array('pocetna', 'blog', 'o-nama', 'kontakt');
         foreach ($slugs as $slug) {
@@ -1563,6 +1684,7 @@ function lunart_demo_import_page() {
         $services = lunart_import_demo_services(true);
         $gallery = lunart_import_demo_gallery(true);
         $pages_created = lunart_import_demo_pages();
+        $posts = lunart_import_demo_posts(true);
         $menus = lunart_import_demo_menus();
         // CF7 is optional; attempt but ignore if plugin not active
         $cf7_msg = '';
@@ -1576,6 +1698,7 @@ function lunart_demo_import_page() {
         echo 'Usluge: uvezeno ' . intval($services['imported']) . ', preskočeno ' . intval($services['skipped']) . ', ukupno ' . intval($services['total']) . '.<br>';
         echo 'Galerija: uvezeno ' . intval($gallery['imported']) . ', preskočeno ' . intval($gallery['skipped']) . ', ukupno ' . intval($gallery['total']) . '.<br>';
         echo 'Stranice: kreirano/obnovljeno ' . intval($pages_created) . '.<br>';
+        echo 'Blog postovi: uvezeno ' . intval($posts['imported']) . ', preskočeno ' . intval($posts['skipped']) . ', ukupno ' . intval($posts['total']) . '.<br>';
         echo 'Meniji: kreirani/dodeljeni.<br>';
         if (!empty($cf7_msg)) { echo 'Kontakt forma: ' . esc_html($cf7_msg) . '<br>'; }
         echo 'ALL import završen.';
@@ -1601,6 +1724,16 @@ function lunart_demo_import_page() {
         echo '</p></div>';
     }
     
+    if (isset($_POST['import_posts'])) {
+        $overwrite = isset($_POST['overwrite_existing_posts']);
+        $result = lunart_import_demo_posts($overwrite);
+        echo '<div class="notice notice-success"><p>';
+        echo 'Uspešno uvezeno: ' . $result['imported'] . ' postova<br>';
+        echo 'Preskočeno: ' . $result['skipped'] . ' postova<br>';
+        echo 'Ukupno: ' . $result['total'] . ' postova';
+        echo '</p></div>';
+    }
+
     if (isset($_POST['import_pages'])) {
         $result = lunart_import_demo_pages();
         echo '<div class="notice notice-success"><p>Demo stranice su uspešno kreirane!</p></div>';
@@ -1627,7 +1760,7 @@ function lunart_demo_import_page() {
 
         <form method="post">
             <h2>Uvezi SAV Sadržaj</h2>
-            <p>Jednim klikom uvezite: Galeriju, Usluge, Stranice (Početna, Blog, O nama, Kontakt), Menije i Kontakt formu (ako je CF7 aktivan).</p>
+            <p>Jednim klikom uvezite: Galeriju, Usluge, Stranice (Početna, Blog, O nama, Kontakt), Blog postove, Menije i Kontakt formu (ako je CF7 aktivan).</p>
             <label style="display:inline-flex;align-items:center;gap:8px;">
                 <input type="checkbox" name="confirm_delete_all" value="1">
                 Obriši postojeći sadržaj (potvrda)
@@ -1660,6 +1793,19 @@ function lunart_demo_import_page() {
             </label>
             <br><br>
             <input type="submit" name="import_services" class="button button-primary" value="Uvezi Usluge">
+        </form>
+        
+        <hr style="margin: 30px 0;">
+        
+        <form method="post">
+            <h2>Blog postovi</h2>
+            <p>Uvezite demo blog postove sa temama iz oblasti konzervacije i restauracije.</p>
+            <label>
+                <input type="checkbox" name="overwrite_existing_posts" value="1">
+                Prepiši postojeće demo postove
+            </label>
+            <br><br>
+            <input type="submit" name="import_posts" class="button button-primary" value="Uvezi Blog Postove">
         </form>
         
         <hr style="margin: 30px 0;">

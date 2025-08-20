@@ -619,6 +619,15 @@ p {
   border-bottom: 1px solid var(--border);
 }
 
+/* Admin bar safe area for logged-in users */
+body.admin-bar .navigation { top: 32px; }
+@media screen and (max-width: 782px) {
+  body.admin-bar .navigation { top: 46px; }
+  /* ensure drawers don't hide the admin bar */
+  body.admin-bar .mobile-menu { top: 46px; height: calc(100vh - 46px); }
+  body.admin-bar .mobile-menu-overlay { top: 46px; }
+}
+
 /* Drawer overlay */
 .mobile-menu-overlay {
   position: fixed;
@@ -1279,7 +1288,7 @@ p {
 
 @media (min-width: 768px) {
   .footer-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     text-align: left;
   }
 }
@@ -1395,6 +1404,10 @@ p {
 .footer-copyright {
   color: rgba(255, 255, 255, 0.6);
   font-size: 0.875rem;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  margin-top: 2rem;
+  padding-top: 1.25rem;
 }
 
 /* Decorative Elements */
@@ -1445,6 +1458,60 @@ p {
     font-size: 3rem;
   }
 }
+
+/* Page and Blog Basics (to ensure fixed header doesn't overlap and provide clean spacing) */
+.page .site-main.main-content .container,
+.blog .site-main.main-content .container,
+.home .site-main.main-content .container,
+.single .site-main.main-content .container,
+.archive .site-main.main-content .container {
+  padding-top: 2rem;
+  padding-bottom: 3rem;
+}
+
+/* Page titles */
+.page .entry-title,
+.blog .page-title,
+.archive .page-title,
+.single .entry-title {
+  font-family: var(--font-libertinus), serif;
+  font-size: clamp(2rem, 3vw + 1rem, 3rem);
+  margin: 0 0 1rem;
+  text-align: center;
+}
+
+/* Generic page content typography (O nama / Kontakt) */
+.page .entry-content h2,
+.page .entry-content h3,
+.page .entry-content h4 {
+  font-family: var(--font-libertinus), serif;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+}
+.page .entry-content p { margin: 0 0 1rem; }
+.page .entry-content ul { margin: 0 0 1rem 1.25rem; list-style: disc; }
+.page .entry-content a { color: var(--primary); text-decoration: underline; }
+
+/* Contact page grid helpers (if user keeps the inline grid, these enhance spacing) */
+.page .entry-content [style*="grid"],
+.page .entry-content .contact-grid {
+  gap: 1.25rem !important;
+}
+
+/* Blog list (Posts page) */
+.posts-list { display: grid; grid-template-columns: 1fr; gap: 2rem; }
+@media (min-width: 768px) { .posts-list { grid-template-columns: 1fr 1fr; } }
+.post-excerpt { border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.25rem; background: var(--card); }
+.post-excerpt .entry-title { font-size: 1.375rem; margin: 0 0 0.5rem; }
+.post-excerpt .entry-meta { color: var(--muted-foreground); font-size: 0.875rem; margin-bottom: 0.5rem; }
+
+/* Single post */
+.single .entry-header { text-align: center; margin-bottom: 1.25rem; }
+.single .entry-meta { color: var(--muted-foreground); font-size: 0.9rem; margin-top: 0.25rem; }
+.single .featured-image { margin: 1rem auto 2rem; max-width: 900px; }
+.single .featured-image img { width: 100%; height: auto; border-radius: 0.75rem; }
+.single .entry-content p { margin: 0 0 1rem; }
+.single .entry-content img { max-width: 100%; height: auto; border-radius: 0.5rem; }
 
 /* WordPress Specific Styles */
 .wp-block-image img {

@@ -16,6 +16,7 @@
     var TextareaControl = components.TextareaControl;
     var RangeControl = components.RangeControl;
     var SelectControl = components.SelectControl;
+    var ToggleControl = components.ToggleControl;
     var __experimentalNumberControl = components.__experimentalNumberControl || components.NumberControl;
 
     // Ensure a custom category exists
@@ -96,6 +97,26 @@
             buttonLabel: { type: 'string', default: 'Kontaktirajte Nas' },
             buttonHref: { type: 'string', default: '#contact' },
             styleVariant: { type: 'string', default: 'primary' }
+        },
+        'lunart/footer': {
+            showLogo: { type: 'boolean', default: true },
+            title: { type: 'string', default: 'LUNART' },
+            tagline: { type: 'string', default: 'Vaš pouzdani partner za konzervaciju i restauraciju umetničkih dela' },
+            companyName: { type: 'string', default: 'LUNART' },
+            businessName: { type: 'string', default: 'Mila Borak preduzetnik Umetničko stvaralaštvo Lunart Beograd-Zvezdara' },
+            status: { type: 'string', default: 'Aktivan' },
+            legalForm: { type: 'string', default: 'Preduzetnik' },
+            registrationNumber: { type: 'string', default: '68039665' },
+            establishmentDate: { type: 'string', default: '20.05.2025.' },
+            activityCode: { type: 'string', default: '9003' },
+            activityDescription: { type: 'string', default: 'Umetničko stvaralaštvo' },
+            taxId: { type: 'string', default: '115033613' },
+            bankAccount: { type: 'string', default: '265-1630310011591-68' },
+            address: { type: 'string', default: 'Beograd-Zvezdara' },
+            email: { type: 'string', default: 'info@lunart.rs' },
+            phone: { type: 'string', default: '+381 XX XXX XXXX' },
+            showSocial: { type: 'boolean', default: true },
+            copyright: { type: 'string', default: '\u00a9 {year} LUNART. Sva prava zadr\u017eana.' }
         }
     };
 
@@ -105,7 +126,8 @@
         { name: 'lunart/gallery', title: __('Galerija', 'lunart'), icon: 'format-gallery' },
         { name: 'lunart/blog-teaser', title: __('Blog Teaser', 'lunart'), icon: 'admin-post' },
         { name: 'lunart/about', title: __('O Lunart-u', 'lunart'), icon: 'admin-users' },
-        { name: 'lunart/cta', title: __('CTA', 'lunart'), icon: 'megaphone' }
+        { name: 'lunart/cta', title: __('CTA', 'lunart'), icon: 'megaphone' },
+        { name: 'lunart/footer', title: __('Footer', 'lunart'), icon: 'admin-site-alt3' }
     ];
 
     function labelFromKey(key){
@@ -135,6 +157,9 @@
                 return el(__experimentalNumberControl, { label: label, value: val, onChange: set, min: 0 });
             }
             return el(TextControl, { label: label, type: 'number', value: val, onChange: set });
+        }
+        if (schema && schema.type === 'boolean' && ToggleControl) {
+            return el(ToggleControl, { label: label, checked: !!val, onChange: function(checked){ set(!!checked); } });
         }
         // Longer text areas by heuristic
         if (/desc|paragraph/i.test(key)) {
@@ -173,7 +198,7 @@
                     var preview = SSR ? el('div', { className: 'lunart-block-editor-ssr', key: 'preview' }, el(SSR, { block: info.name, attributes: props.attributes }))
                                        : el('div', { className: 'lunart-block-editor-placeholder', key: 'placeholder' }, info.title + ' — ' + __('server rendered', 'lunart'));
                     var blockProps = (wp.blockEditor && wp.blockEditor.useBlockProps) ? wp.blockEditor.useBlockProps() : {};
-                    return el('div', blockProps, inspector, preview);
+                    return el('div', blockProps, inspector, preview, el('div', { className: 'lunart-editor-hint', style: { fontSize: '12px', color: '#555', marginTop: '8px' } }, __('Sav sadržaj menjate u desnom panelu (ikona zupčanika) u tabu Block.', 'lunart')));
                 },
                 save: function(){ return null; }
             });

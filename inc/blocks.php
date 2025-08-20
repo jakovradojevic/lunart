@@ -33,6 +33,7 @@ add_action('init', function() {
     lunart_register_gallery_block();
     lunart_register_blog_teaser_block();
     lunart_register_about_block();
+    lunart_register_footer_block();
 });
 
 /**
@@ -505,6 +506,111 @@ function lunart_render_about_block($attributes) {
             </div>
         </div>
     </section>
+    <?php
+    return ob_get_clean();
+}
+
+
+/**
+ * Register Footer block
+ */
+function lunart_register_footer_block() {
+    register_block_type('lunart/footer', array(
+        'api_version' => 2,
+        'render_callback' => 'lunart_render_footer_block',
+        'attributes' => array(
+            'showLogo' => array('type' => 'boolean', 'default' => true),
+            'title' => array('type' => 'string', 'default' => 'LUNART'),
+            'tagline' => array('type' => 'string', 'default' => 'Vaš pouzdani partner za konzervaciju i restauraciju umetničkih dela'),
+            // Business info
+            'companyName' => array('type' => 'string', 'default' => 'LUNART'),
+            'businessName' => array('type' => 'string', 'default' => 'Mila Borak preduzetnik Umetničko stvaralaštvo Lunart Beograd-Zvezdara'),
+            'status' => array('type' => 'string', 'default' => 'Aktivan'),
+            'legalForm' => array('type' => 'string', 'default' => 'Preduzetnik'),
+            'registrationNumber' => array('type' => 'string', 'default' => '68039665'),
+            'establishmentDate' => array('type' => 'string', 'default' => '20.05.2025.'),
+            // Activity
+            'activityCode' => array('type' => 'string', 'default' => '9003'),
+            'activityDescription' => array('type' => 'string', 'default' => 'Umetničko stvaralaštvo'),
+            'taxId' => array('type' => 'string', 'default' => '115033613'),
+            'bankAccount' => array('type' => 'string', 'default' => '265-1630310011591-68'),
+            // Contact
+            'address' => array('type' => 'string', 'default' => 'Beograd-Zvezdara'),
+            'email' => array('type' => 'string', 'default' => 'info@lunart.rs'),
+            'phone' => array('type' => 'string', 'default' => '+381 XX XXX XXXX'),
+            // Socials
+            'showSocial' => array('type' => 'boolean', 'default' => true),
+            // Copyright
+            'copyright' => array('type' => 'string', 'default' => '&copy; {year} LUNART. Sva prava zadržana.'),
+        ),
+        'supports' => array('anchor' => true),
+        'editor_script' => 'lunart-blocks-editor',
+    ));
+}
+
+function lunart_render_footer_block($attributes) {
+    $a = wp_parse_args($attributes, array());
+    $year = date('Y');
+    $copyright = isset($a['copyright']) ? $a['copyright'] : '&copy; {year} LUNART. Sva prava zadržana.';
+    $copyright = str_replace(array('{year}', '[year]', '{{year}}'), $year, $copyright);
+
+    ob_start();
+    ?>
+    <div class="footer-grid">
+        <div class="footer-column">
+            <?php if (!isset($a['showLogo']) || $a['showLogo']) : ?>
+                <div class="footer-logo">
+                    <?php echo lunart_get_logo_html(); ?>
+                </div>
+            <?php endif; ?>
+            <?php if (!empty($a['title'])) : ?>
+                <h3 class="gradient-text"><?php echo esc_html($a['title']); ?></h3>
+            <?php endif; ?>
+            <?php if (!empty($a['tagline'])) : ?>
+                <p><?php echo esc_html($a['tagline']); ?></p>
+            <?php endif; ?>
+        </div>
+
+        <div class="footer-column">
+            <h4>Poslovni podaci</h4>
+            <div class="business-info">
+                <p><strong>Naziv:</strong> <?php echo esc_html(isset($a['companyName']) ? $a['companyName'] : ''); ?></p>
+                <p><strong>Poslovno ime:</strong> <?php echo esc_html(isset($a['businessName']) ? $a['businessName'] : ''); ?></p>
+                <p><strong>Status:</strong> <?php echo esc_html(isset($a['status']) ? $a['status'] : ''); ?></p>
+                <p><strong>Pravna forma:</strong> <?php echo esc_html(isset($a['legalForm']) ? $a['legalForm'] : ''); ?></p>
+                <p><strong>Matični broj:</strong> <?php echo esc_html(isset($a['registrationNumber']) ? $a['registrationNumber'] : ''); ?></p>
+                <p><strong>Datum osnivanja:</strong> <?php echo esc_html(isset($a['establishmentDate']) ? $a['establishmentDate'] : ''); ?></p>
+            </div>
+        </div>
+
+        <div class="footer-column">
+            <h4>Delatnost</h4>
+            <div class="activity-info">
+                <p><strong>Šifra delatnosti:</strong> <?php echo esc_html(isset($a['activityCode']) ? $a['activityCode'] : ''); ?></p>
+                <p><strong>Opis delatnosti:</strong> <?php echo esc_html(isset($a['activityDescription']) ? $a['activityDescription'] : ''); ?></p>
+                <p><strong>PIB:</strong> <?php echo esc_html(isset($a['taxId']) ? $a['taxId'] : ''); ?></p>
+                <p><strong>Broj tekućeg računa:</strong> <?php echo esc_html(isset($a['bankAccount']) ? $a['bankAccount'] : ''); ?></p>
+            </div>
+        </div>
+
+        <div class="footer-column">
+            <h4>Kontakt</h4>
+            <div class="contact-info">
+                <p><?php echo esc_html(isset($a['address']) ? $a['address'] : ''); ?></p>
+                <p>Email: <?php echo esc_html(isset($a['email']) ? $a['email'] : ''); ?></p>
+                <p>Tel: <?php echo esc_html(isset($a['phone']) ? $a['phone'] : ''); ?></p>
+            </div>
+            <?php if (!isset($a['showSocial']) || $a['showSocial']) : ?>
+                <div class="footer-social-wrap">
+                    <?php echo lunart_get_social_media_html(); ?>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <div class="footer-section footer-copyright">
+        <p><?php echo wp_kses_post($copyright); ?></p>
+    </div>
     <?php
     return ob_get_clean();
 }

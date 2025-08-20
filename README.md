@@ -306,3 +306,32 @@ Kako koristiti:
 
 Plan (sledeća faza):
 - Dodati block.json i minimalan editor JS za svaki blok (Inspector Controls za sva polja) i kategoriju „Lunart Blocks“ u inserter-u.
+
+
+## Kako se sada edituje?
+
+Sve sekcije Početne su sada Gutenberg blokovi (lunart/*) sa živim pregledom i panelom „Sadržaj“ u desnoj bočnoj traci.
+
+- Gde: Stranice > Početna > Uredi (Gutenberg)
+- Kako:
+  1) Kliknite na sekciju (blok) u platnu.
+  2) Otvorite desni sidebar (ikona zupčanika) ako nije vidljiv.
+  3) U tabu Block vidite panel „Sadržaj“ — tu menjate sva polja (naslovi, opisi, dugmad, limiti, sl.).
+  4) Pregled u platnu se odmah ažurira (server-side render).
+
+Ko se gde edituje:
+- Hero (lunart/hero): naslov u 2 reda, podnaslov, 2 dugmeta, 3 feature stavke, interni CTA (naslov, opis, 2 dugmeta, info linija).
+- Usluge (lunart/services): sekcijski naslov/opis i limit; kartice dolaze iz CPT „Usluge“ (Usluge > Dodaj novu). Ikonice i stavke liste dolaze iz post meta (kao i do sada).
+- Galerija (lunart/gallery): naslov/opis i limit; slike dolaze iz CPT „Galerija“ preko kratkog koda [lunart_gallery].
+- Blog Teaser (lunart/blog-teaser): naslov/opis + CTA; placeholder „Blog uskoro“.
+- O Lunart-u (lunart/about): naslov, glavni pasus, citat i autor + CTA.
+- CTA (lunart/cta): generički CTA sa varijantom stila (primary/outline).
+- Footer: Appearance > Widgets > Footer — dodajte blok „Footer (Lunart)“. Tu menjate logo toggle, naslov/tagline, poslovne/poreske podatke, kontakt i prikaz društvenih mreža. Ako nema widgeta, tema prikazuje isti Footer blok sa podrazumevanim vrednostima.
+
+Podrazumevane vrednosti (stari podaci):
+- Svi Lunart blokovi već imaju podrazumevane vrednosti koje 1:1 odgovaraju staroj početnoj iz index.php (naslovi, opisi, CTA tekstovi, limiti…).
+- Footer blok podrazumevano sadrži vaše stare poslovne podatke (naziv, poslovno ime, PIB, matični broj, šifra delatnosti, račun…).
+- URL-ovi društvenih mreža i dalje se uzimaju iz Customizer-a: Appearance > Customize > Društvene Mreže.
+
+Napomena:
+- Demo Importer već kreira stranicu Početna sa Lunart blokovima. Ako želite sve iz početka, koristite „Uvezi SAV Sadržaj“ u Tools > Demo Content i (opciono) štiklirajte „Obriši postojeći sadržaj (potvrda)“.
