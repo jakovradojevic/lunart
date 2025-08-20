@@ -1513,6 +1513,37 @@ body.admin-bar .navigation { top: 32px; }
 .single .entry-content p { margin: 0 0 1rem; }
 .single .entry-content img { max-width: 100%; height: auto; border-radius: 0.5rem; }
 
+/* Comments (Blog & Single) */
+#content { margin-top: 7em; }
+
+/* Buttons: remove underline and set primary text white */
+.btn, .btn:hover, .btn:focus, .btn:active, .btn:visited { text-decoration: none!important; }
+.btn-primary { color: #fff!important; }
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary:visited { color: #fff; }
+
+/* Comment section styles */
+.comments-area { margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1.5rem; }
+.comments-area .comments-title { font-family: var(--font-libertinus), serif; font-size: 1.5rem; margin: 0 0 1rem; text-align: center; }
+.comment-list { list-style: none; margin: 0; padding: 0; }
+.comment-list .comment { border: 1px solid var(--border); border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem; background: var(--card); }
+.comment-list .comment .comment-author { font-weight: 600; }
+.comment-list .comment .comment-meta { color: var(--muted-foreground); font-size: 0.875rem; margin-bottom: 0.5rem; }
+.comment-list .children { margin-left: 1rem; padding-left: 1rem; border-left: 1px dashed var(--border); }
+.comment-content p { margin: 0 0 0.75rem; }
+.comment-reply-link { display: inline-flex; align-items: center; gap: 6px; padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: 0.5rem; text-decoration: none; }
+.comment-reply-link:hover { background: var(--muted); }
+
+.comment-respond { margin-top: 2rem; border: 1px solid var(--border); border-radius: 0.75rem; padding: 1rem; background: var(--card); }
+.comment-respond .comment-reply-title { font-family: var(--font-libertinus), serif; font-size: 1.25rem; margin: 0 0 1rem; text-align: center; }
+.comment-form p { margin: 0 0 0.75rem; }
+.comment-form input[type="text"],
+.comment-form input[type="email"],
+.comment-form input[type="url"],
+.comment-form textarea { width: 100%; padding: 0.75rem 0.875rem; border: 1px solid var(--border); border-radius: 0.5rem; background: var(--background); color: var(--foreground); }
+.comment-form textarea { min-height: 140px; }
+.comment-form input[type="submit"] { background: var(--primary); color: #fff; border: none; border-radius: 0.5rem; padding: 0.75rem 1.25rem; font-weight: 600; cursor: pointer; }
+.comment-form input[type="submit"]:hover { filter: brightness(0.95); }
+
 /* WordPress Specific Styles */
 .wp-block-image img {
   max-width: 100%;
@@ -2069,3 +2100,55 @@ body.admin-bar .navigation { top: 32px; }
 }
 /* Ensure content sits above the decorative gradient layer */
 .mobile-menu > * { position: relative; }
+
+
+/* Lunart Blog Teaser grid */
+.blog-cards { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+@media (min-width: 768px) {
+  .blog-cards.cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .blog-cards.cols-3 { grid-template-columns: repeat(3, 1fr); }
+}
+.blog-card { background: var(--card); border: 1px solid var(--border); border-radius: 0.75rem; overflow: hidden; padding: 1rem; display: flex; flex-direction: column; }
+.blog-card-thumb { display: block; border-radius: 0.5rem; overflow: hidden; margin-bottom: 0.75rem; }
+.blog-card-img { width: 100%; height: auto; display: block; }
+.blog-card-title { font-size: 1.25rem; margin: 0.25rem 0 0.25rem; }
+.blog-card-meta { color: var(--muted-foreground); font-size: 0.875rem; margin-bottom: 0.5rem; }
+.blog-card-excerpt { margin-bottom: 0.75rem; }
+.blog-card-actions { margin-top: auto; }
+
+/* Contact Form 7 basic styling to match theme */
+.wpcf7 form { max-width: 720px; margin: 1rem auto; }
+.wpcf7-form p { margin: 0 0 0.75rem; }
+.wpcf7 input[type="text"],
+.wpcf7 input[type="email"],
+.wpcf7 input[type="tel"],
+.wpcf7 textarea,
+.wpcf7 select {
+  width: 100%;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--background);
+  color: var(--foreground);
+}
+.wpcf7 textarea { min-height: 140px; }
+.wpcf7 input[type="submit"],
+.wpcf7 button[type="submit"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--primary);
+  color: var(--primary-foreground, #fff);
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.wpcf7 input[type="submit"]:hover,
+.wpcf7 button[type="submit"]:hover {
+  filter: brightness(0.95);
+}
+.wpcf7 .wpcf7-notices, .wpcf7-response-output { margin-top: 0.75rem; border-radius: 0.5rem; padding: 0.75rem 1rem; }
+.wpcf7 .wpcf7-response-output { border: 1px solid var(--border); }
+.wpcf7 form .wpcf7-spinner { margin-left: 8px; }

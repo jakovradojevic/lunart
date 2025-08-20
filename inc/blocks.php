@@ -415,10 +415,24 @@ function lunart_register_blog_teaser_block() {
         'attributes' => array(
             'heading' => array('type' => 'string', 'default' => 'Blog o Konzervaciji'),
             'description' => array('type' => 'string', 'default' => 'Saznajte više o tehnikama konzervacije, istoriji umetnosti i našim najnovijim projektima restauracije.'),
-            'ctaTitle' => array('type' => 'string', 'default' => 'Želite da saznate više?'),
-            'ctaDesc' => array('type' => 'string', 'default' => 'Pratite naš blog za najnovije informacije o konzervaciji i restauraciji'),
-            'ctaBtnLabel' => array('type' => 'string', 'default' => 'Pratite Blog'),
-            'ctaBtnAnchor' => array('type' => 'string', 'default' => '#blog'),
+            // Listing controls
+            'postsPerPage' => array('type' => 'number', 'default' => 3),
+            'category' => array('type' => 'string', 'default' => ''), // category slug filter (optional)
+            'orderBy' => array('type' => 'string', 'default' => 'date'),
+            'order' => array('type' => 'string', 'default' => 'DESC'),
+            'showDate' => array('type' => 'boolean', 'default' => true),
+            'showExcerpt' => array('type' => 'boolean', 'default' => true),
+            'excerptLength' => array('type' => 'number', 'default' => 20),
+            'showImage' => array('type' => 'boolean', 'default' => true),
+            'columns' => array('type' => 'number', 'default' => 3),
+            'readMoreLabel' => array('type' => 'string', 'default' => 'Pročitaj više'),
+            'showViewAll' => array('type' => 'boolean', 'default' => true),
+            'viewAllLabel' => array('type' => 'string', 'default' => 'Pogledaj sve objave'),
+            // CTA (optional secondary)
+            'ctaTitle' => array('type' => 'string', 'default' => ''),
+            'ctaDesc' => array('type' => 'string', 'default' => ''),
+            'ctaBtnLabel' => array('type' => 'string', 'default' => ''),
+            'ctaBtnAnchor' => array('type' => 'string', 'default' => ''),
         ),
         'supports' => array('anchor' => true),
         'editor_script' => 'lunart-blocks-editor',
@@ -427,31 +441,105 @@ function lunart_register_blog_teaser_block() {
 
 function lunart_render_blog_teaser_block($attributes) {
     $a = wp_parse_args($attributes, array());
+    // Build query args
+    $ppp = isset($a['postsPerPage']) ? max(1, intval($a['postsPerPage'])) : 3;
+    $orderby = isset($a['orderBy']) ? sanitize_key($a['orderBy']) : 'date';
+    $order = (isset($a['order']) && strtoupper($a['order']) === 'ASC') ? 'ASC' : 'DESC';
+    $tax_query = array();
+    if (!empty($a['category'])) {
+        $tax_query[] = array(
+            'taxonomy' => 'category',
+            'field' => 'slug',
+            'terms' => sanitize_title($a['category'])
+        );
+    }
+    $q = new WP_Query(array(
+        'post_type' => 'post',
+        'posts_per_page' => $ppp,
+        'orderby' => $orderby,
+        'order' => $order,
+        'tax_query' => !empty($tax_query) ? $tax_query : null,
+        'no_found_rows' => true,
+        'ignore_sticky_posts' => true,
+        'post_status' => 'publish',
+    ));
+
+    // Columns class for grid
+    $cols = isset($a['columns']) ? intval($a['columns']) : 3;
+    if ($cols < 1) { $cols = 1; } elseif ($cols > 3) { $cols = 3; }
+    $cols_class = 'cols-' . $cols;
+
+    // View All link (posts page)
+    $blog_id = (int) get_option('page_for_posts');
+    $view_all_url = $blog_id ? get_permalink($blog_id) : '';
+
     ob_start();
     ?>
     <section id="blog" class="blog-section">
         <div class="absolute inset-0 paper-texture opacity-30"></div>
-        <div class="container text-center relative z-10">
-            <h2 class="text-4xl md:text-5xl font-serif font-bold mb-6 gradient-text"><?php echo esc_html(isset($a['heading']) ? $a['heading'] : ''); ?></h2>
-            <div class="section-divider"></div>
-            <p class="text-lg text-muted-foreground max-w-2xl mx-auto mb-8"><?php echo esc_html(isset($a['description']) ? $a['description'] : ''); ?></p>
-            <div class="blog-placeholder">
-                <p class="text-muted-foreground mb-4">Blog uskoro dostupan</p>
-                <div class="blog-dots">
-                    <div class="blog-dot primary"></div>
-                    <div class="blog-dot accent"></div>
-                    <div class="blog-dot secondary"></div>
-                </div>
+        <div class="container relative z-10">
+            <div class="text-center">
+                <h2 class="text-4xl md:text-5xl font-serif font-bold mb-6 gradient-text"><?php echo esc_html(isset($a['heading']) ? $a['heading'] : ''); ?></h2>
+                <div class="section-divider"></div>
+                <?php if (!empty($a['description'])): ?>
+                    <p class="text-lg text-muted-foreground max-w-2xl mx-auto mb-8"><?php echo esc_html($a['description']); ?></p>
+                <?php endif; ?>
             </div>
-            <div class="cta-section text-center mt-16">
-                <div class="elegant-border max-w-2xl mx-auto p-12">
-                    <h3 class="text-2xl font-serif font-semibold mb-6"><?php echo esc_html(isset($a['ctaTitle']) ? $a['ctaTitle'] : ''); ?></h3>
-                    <p class="text-muted-foreground mb-8"><?php echo esc_html(isset($a['ctaDesc']) ? $a['ctaDesc'] : ''); ?></p>
-                    <a href="<?php echo esc_url(isset($a['ctaBtnAnchor']) ? $a['ctaBtnAnchor'] : '#blog'); ?>" class="btn btn-primary btn-lg elegant-hover">
-                        <?php echo esc_html(isset($a['ctaBtnLabel']) ? $a['ctaBtnLabel'] : ''); ?>
+
+            <?php if ($q->have_posts()) : ?>
+                <div class="blog-cards <?php echo esc_attr($cols_class); ?>">
+                    <?php while ($q->have_posts()) : $q->the_post(); ?>
+                        <article id="post-<?php the_ID(); ?>" <?php post_class('blog-card post-excerpt'); ?>>
+                            <?php if (!empty($a['showImage']) && has_post_thumbnail()) : ?>
+                                <a class="blog-card-thumb" href="<?php the_permalink(); ?>">
+                                    <?php the_post_thumbnail('medium_large', array('class' => 'blog-card-img')); ?>
+                                </a>
+                            <?php endif; ?>
+                            <h3 class="entry-title blog-card-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
+                            <?php if (!empty($a['showDate'])) : ?>
+                                <div class="entry-meta blog-card-meta"><span class="posted-on"><?php echo esc_html(get_the_date()); ?></span></div>
+                            <?php endif; ?>
+                            <?php if (!empty($a['showExcerpt'])) : ?>
+                                <div class="entry-summary blog-card-excerpt">
+                                    <?php
+                                    $len = isset($a['excerptLength']) ? intval($a['excerptLength']) : 20;
+                                    $ex = get_the_excerpt();
+                                    echo esc_html(wp_trim_words($ex, $len));
+                                    ?>
+                                </div>
+                            <?php endif; ?>
+                            <div class="blog-card-actions">
+                                <a href="<?php the_permalink(); ?>" class="btn btn-outline elegant-hover">
+                                    <?php echo esc_html(!empty($a['readMoreLabel']) ? $a['readMoreLabel'] : __('Pročitaj više', 'lunart')); ?>
+                                </a>
+                            </div>
+                        </article>
+                    <?php endwhile; wp_reset_postdata(); ?>
+                </div>
+            <?php else : ?>
+                <p class="text-muted-foreground text-center mb-8"><?php esc_html_e('Trenutno nema blog postova.', 'lunart'); ?></p>
+                <?php if (current_user_can('edit_posts')): ?>
+                    <p class="text-center"><a class="btn btn-primary elegant-hover" href="<?php echo esc_url(admin_url('post-new.php')); ?>"><?php esc_html_e('Dodaj prvi post', 'lunart'); ?></a></p>
+                <?php endif; ?>
+            <?php endif; ?>
+
+            <?php if (!empty($a['showViewAll']) && $view_all_url): ?>
+                <div class="text-center mt-10">
+                    <a class="btn btn-primary elegant-hover" href="<?php echo esc_url($view_all_url); ?>">
+                        <?php echo esc_html(!empty($a['viewAllLabel']) ? $a['viewAllLabel'] : __('Pogledaj sve objave', 'lunart')); ?>
                     </a>
                 </div>
-            </div>
+            <?php endif; ?>
+
+            <?php if (!empty($a['ctaTitle']) || !empty($a['ctaDesc']) || !empty($a['ctaBtnLabel'])): ?>
+                <div class="cta-section text-center mt-16">
+                    <div class="elegant-border max-w-2xl mx-auto p-12">
+                        <?php if (!empty($a['ctaTitle'])): ?><h3 class="text-2xl font-serif font-semibold mb-6"><?php echo esc_html($a['ctaTitle']); ?></h3><?php endif; ?>
+                        <?php if (!empty($a['ctaDesc'])): ?><p class="text-muted-foreground mb-8"><?php echo esc_html($a['ctaDesc']); ?></p><?php endif; ?>
+                        <?php if (!empty($a['ctaBtnLabel'])): ?><a href="<?php echo esc_url(!empty($a['ctaBtnAnchor']) ? $a['ctaBtnAnchor'] : '#'); ?>" class="btn btn-primary btn-lg elegant-hover"><?php echo esc_html($a['ctaBtnLabel']); ?></a><?php endif; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
     </section>
     <?php
@@ -597,8 +685,8 @@ function lunart_render_footer_block($attributes) {
             <h4>Kontakt</h4>
             <div class="contact-info">
                 <p><?php echo esc_html(isset($a['address']) ? $a['address'] : ''); ?></p>
-                <p>Email: <?php echo esc_html(isset($a['email']) ? $a['email'] : ''); ?></p>
-                <p>Tel: <?php echo esc_html(isset($a['phone']) ? $a['phone'] : ''); ?></p>
+                <p>Email: <?php $email = isset($a['email']) ? trim($a['email']) : ''; if ($email) { echo '<a class="footer-link" href="mailto:' . esc_attr($email) . '">' . esc_html($email) . '</a>'; } ?></p>
+                <p>Tel: <?php $phone = isset($a['phone']) ? trim($a['phone']) : ''; if ($phone) { $tel_href = preg_replace('/\s+|\(|\)|\-/', '', $phone); echo '<a class="footer-link" href="tel:' . esc_attr($tel_href) . '">' . esc_html($phone) . '</a>'; } ?></p>
             </div>
             <?php if (!isset($a['showSocial']) || $a['showSocial']) : ?>
                 <div class="footer-social-wrap">

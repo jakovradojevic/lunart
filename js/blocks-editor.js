@@ -76,10 +76,22 @@
         'lunart/blog-teaser': {
             heading: { type: 'string', default: 'Blog o Konzervaciji' },
             description: { type: 'string', default: 'Saznajte više o tehnikama konzervacije, istoriji umetnosti i našim najnovijim projektima restauracije.' },
-            ctaTitle: { type: 'string', default: 'Želite da saznate više?' },
-            ctaDesc: { type: 'string', default: 'Pratite naš blog za najnovije informacije o konzervaciji i restauraciji' },
-            ctaBtnLabel: { type: 'string', default: 'Pratite Blog' },
-            ctaBtnAnchor: { type: 'string', default: '#blog' }
+            postsPerPage: { type: 'number', default: 3 },
+            category: { type: 'string', default: '' },
+            orderBy: { type: 'string', default: 'date' },
+            order: { type: 'string', default: 'DESC' },
+            showDate: { type: 'boolean', default: true },
+            showExcerpt: { type: 'boolean', default: true },
+            excerptLength: { type: 'number', default: 20 },
+            showImage: { type: 'boolean', default: true },
+            columns: { type: 'number', default: 3 },
+            readMoreLabel: { type: 'string', default: 'Pročitaj više' },
+            showViewAll: { type: 'boolean', default: true },
+            viewAllLabel: { type: 'string', default: 'Pogledaj sve objave' },
+            ctaTitle: { type: 'string', default: '' },
+            ctaDesc: { type: 'string', default: '' },
+            ctaBtnLabel: { type: 'string', default: '' },
+            ctaBtnAnchor: { type: 'string', default: '' }
         },
         'lunart/about': {
             heading: { type: 'string', default: 'O Lunart-u' },
