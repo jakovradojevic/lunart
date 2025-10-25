@@ -534,29 +534,103 @@ add_action('add_meta_boxes', 'lunart_add_service_meta_boxes');
 function lunart_gallery_meta_box_callback($post) {
     wp_nonce_field('lunart_save_gallery_meta', 'lunart_gallery_meta_nonce');
 
+    // Ensure WP media scripts are available
+    if (function_exists('wp_enqueue_media')) {
+        wp_enqueue_media();
+    }
+
     $before_image = get_post_meta($post->ID, '_before_image', true);
     $after_image = get_post_meta($post->ID, '_after_image', true);
     $category = get_post_meta($post->ID, '_category', true);
     $subtitle = get_post_meta($post->ID, '_subtitle', true);
 
     echo '<table class="form-table">';
+
+    // Before image selector
     echo '<tr>';
-    echo '<th><label for="before_image">' . __('Pre Restauracije (URL slike)', 'lunart') . '</label></th>';
-    echo '<td><input type="text" id="before_image" name="before_image" value="' . esc_attr($before_image) . '" class="regular-text" /></td>';
+    echo '<th><label for="before_image">' . __('Pre restauracije', 'lunart') . '</label></th>';
+    echo '<td>';
+    echo '<div class="lunart-image-field">';
+    $before_style = empty($before_image) ? 'style="display:none;"' : '';
+    echo '<img id="before_image_preview" src="' . esc_url($before_image) . '" ' . $before_style . ' />';
+    echo '<input type="text" id="before_image" name="before_image" value="' . esc_attr($before_image) . '" class="regular-text" placeholder="' . esc_attr__('URL slike', 'lunart') . '" /> ';
+    echo '<button type="button" class="button lunart-select-image" data-target="before_image" data-preview="before_image_preview">' . esc_html__('Izaberi sliku', 'lunart') . '</button> ';
+    echo '<button type="button" class="button lunart-remove-image" data-target="before_image" data-preview="before_image_preview">' . esc_html__('Ukloni', 'lunart') . '</button>';
+    echo '</div>';
+    echo '</td>';
     echo '</tr>';
+
+    // After image selector
     echo '<tr>';
-    echo '<th><label for="after_image">' . __('Posle Restauracije (URL slike)', 'lunart') . '</label></th>';
-    echo '<td><input type="text" id="after_image" name="after_image" value="' . esc_attr($after_image) . '" class="regular-text" /></td>';
+    echo '<th><label for="after_image">' . __('Posle restauracije', 'lunart') . '</label></th>';
+    echo '<td>';
+    echo '<div class="lunart-image-field">';
+    $after_style = empty($after_image) ? 'style="display:none;"' : '';
+    echo '<img id="after_image_preview" src="' . esc_url($after_image) . '" ' . $after_style . ' />';
+    echo '<input type="text" id="after_image" name="after_image" value="' . esc_attr($after_image) . '" class="regular-text" placeholder="' . esc_attr__('URL slike', 'lunart') . '" /> ';
+    echo '<button type="button" class="button lunart-select-image" data-target="after_image" data-preview="after_image_preview">' . esc_html__('Izaberi sliku', 'lunart') . '</button> ';
+    echo '<button type="button" class="button lunart-remove-image" data-target="after_image" data-preview="after_image_preview">' . esc_html__('Ukloni', 'lunart') . '</button>';
+    echo '</div>';
+    echo '</td>';
     echo '</tr>';
+
+    // Category
     echo '<tr>';
     echo '<th><label for="category">' . __('Kategorija', 'lunart') . '</label></th>';
     echo '<td><input type="text" id="category" name="category" value="' . esc_attr($category) . '" class="regular-text" /></td>';
     echo '</tr>';
+
+    // Subtitle
     echo '<tr>';
     echo '<th><label for="subtitle">' . __('Podnaslov', 'lunart') . '</label></th>';
     echo '<td><input type="text" id="subtitle" name="subtitle" value="' . esc_attr($subtitle) . '" class="regular-text" /></td>';
     echo '</tr>';
+
     echo '</table>';
+
+    // Inline JS to handle media selection
+    echo '<script>
+    jQuery(document).ready(function($){
+        function openMediaFrame(targetInputId, previewImgId){
+            var frame = wp.media({
+                title: "' . esc_js(__('Izaberite sliku', 'lunart')) . '",
+                multiple: false,
+                library: { type: ["image"] },
+                button: { text: "' . esc_js(__('Koristi ovu sliku', 'lunart')) . '" }
+            });
+            frame.on("select", function(){
+                var attachment = frame.state().get("selection").first().toJSON();
+                var url = attachment.url || "";
+                $("#"+targetInputId).val(url).trigger("change");
+                if(previewImgId){
+                    var $img = $("#"+previewImgId);
+                    $img.attr("src", url);
+                    if(url){ $img.show(); } else { $img.hide(); }
+                }
+            });
+            frame.open();
+        }
+        $(document).on("click", ".lunart-select-image", function(e){
+            e.preventDefault();
+            var target = $(this).data("target");
+            var preview = $(this).data("preview");
+            openMediaFrame(target, preview);
+        });
+        $(document).on("click", ".lunart-remove-image", function(e){
+            e.preventDefault();
+            var target = $(this).data("target");
+            var preview = $(this).data("preview");
+            $("#"+target).val("");
+            if(preview){ $("#"+preview).attr("src", "").hide(); }
+        });
+    });
+    </script>';
+
+    // Minimal styling for preview
+    echo '<style>
+    .lunart-image-field img{ max-width:150px; height:auto; display:block; margin-bottom:8px; border:1px solid #ddd; border-radius:4px; }
+    .lunart-image-field .button{ margin-top:4px; margin-right:6px; }
+    </style>';
 }
 
 function lunart_save_gallery_meta($post_id) {
@@ -579,11 +653,11 @@ function lunart_save_gallery_meta($post_id) {
     }
 
     if (isset($_POST['before_image'])) {
-        update_post_meta($post_id, '_before_image', sanitize_text_field($_POST['before_image']));
+        update_post_meta($post_id, '_before_image', esc_url_raw($_POST['before_image']));
     }
 
     if (isset($_POST['after_image'])) {
-        update_post_meta($post_id, '_after_image', sanitize_text_field($_POST['after_image']));
+        update_post_meta($post_id, '_after_image', esc_url_raw($_POST['after_image']));
     }
 
     if (isset($_POST['category'])) {
