@@ -2152,3 +2152,74 @@ body.admin-bar .navigation { top: 32px; }
 .wpcf7 .wpcf7-notices, .wpcf7-response-output { margin-top: 0.75rem; border-radius: 0.5rem; padding: 0.75rem 1rem; }
 .wpcf7 .wpcf7-response-output { border: 1px solid var(--border); }
 .wpcf7 form .wpcf7-spinner { margin-left: 8px; }
+
+
+/* -----------------------------
+   Single Gallery Item (spacing)
+   Poboljšan padding sekcije i razmak između elemenata
+   ----------------------------- */
+.single-gallery-item-section {
+  padding: 3rem 0; /* veći vertikalni razmak oko sadržaja */
+}
+
+/* Unutrašnji padding artikla i finoća ivica */
+.single-gallery-item-section .single-gallery-item {
+  padding: 1.5rem; /* lagani unutrašnji odmak od ivice okvira */
+  border-radius: var(--radius);
+  background: var(--card);
+}
+
+/* Tipografski razmaci između ključnih blokova */
+.single-gallery-item-section .single-gallery-item .entry-header,
+.single-gallery-item-section .single-gallery-item .gallery-images,
+.single-gallery-item-section .single-gallery-item .entry-content {
+  margin-bottom: 1.75rem; /* malo „mekši” razmak između sekcija */
+}
+
+.single-gallery-item-section .single-gallery-item .entry-footer {
+  margin-top: 1.25rem;
+}
+
+/* Dva stuba za before/after sa prijatnim razmakom */
+.single-gallery-item-section .gallery-images.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem; /* razmak između slika */
+}
+
+/* Lepše renderovanje slika */
+.single-gallery-item-section .gallery-image {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--muted);
+}
+
+.single-gallery-item-section .gallery-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Oznake PRE/POSLE – malo prostora i kontrasta ukoliko postoje */
+.single-gallery-item-section .gallery-image-overlay {
+  position: absolute;
+  left: 0.75rem;
+  top: 0.75rem;
+  background: color-mix(in oklch, var(--background) 70%, var(--foreground) 30%);
+  color: var(--foreground);
+  padding: 0.25rem 0.5rem;
+  border-radius: calc(var(--radius) / 1.5);
+  font-weight: 600;
+  font-size: 0.8125rem;
+}
+
+/* Responsive: na užim ekranima slike idu jedna ispod druge i povećavamo padding sekcije */
+@media (max-width: 768px) {
+  .single-gallery-item-section { padding: 3.5rem 0; }
+  .single-gallery-item-section .single-gallery-item { padding: 1.25rem; }
+  .single-gallery-item-section .gallery-images.two-col { grid-template-columns: 1fr; }
+  .single-gallery-item-section .single-gallery-item .entry-header,
+  .single-gallery-item-section .single-gallery-item .gallery-images,
+  .single-gallery-item-section .single-gallery-item .entry-content { margin-bottom: 1.5rem; }
+}
