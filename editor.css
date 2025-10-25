@@ -1,0 +1,38 @@
+/* Editor-only styles to make Lunart blocks look closer to frontend inside Gutenberg */
+
+/* Ensure our SSR preview stretches properly and has spacing */
+.lunart-block-editor-ssr {
+  margin: 12px 0 4px;
+}
+
+/* Most of our theme styles come from style.css which we load via add_editor_style */
+/* Small helpers to improve visibility in editor canvas */
+.editor-styles-wrapper .hero-section,
+.editor-styles-wrapper .services-section,
+.editor-styles-wrapper .gallery-section,
+.editor-styles-wrapper .blog-section,
+.editor-styles-wrapper .about-section {
+  position: relative;
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+/* Tone down huge blurs and absolute decorations in editor to keep it usable */
+.editor-styles-wrapper .hero-section .absolute,
+.editor-styles-wrapper .gallery-section .absolute,
+.editor-styles-wrapper .services-section .absolute,
+.editor-styles-wrapper .blog-section .absolute {
+  opacity: 0.2;
+}
+
+/* Buttons should be visible even without full theme variables */
+.editor-styles-wrapper .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Inspector control layout tweaks */
+.lunart-inspector-controls .components-base-control__field {
+  margin-bottom: 10px;
+}
