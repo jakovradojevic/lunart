@@ -2164,7 +2164,7 @@ body.admin-bar .navigation { top: 32px; }
 
 /* Unutrašnji padding artikla i finoća ivica */
 .single-gallery-item-section .single-gallery-item {
-  padding: 1.5rem; /* lagani unutrašnji odmak od ivice okvira */
+  padding: 2rem; /* povećan unutrašnji odmak za udobnije čitanje i vizuelni balans */
   border-radius: var(--radius);
   background: var(--card);
 }
@@ -2217,7 +2217,7 @@ body.admin-bar .navigation { top: 32px; }
 /* Responsive: na užim ekranima slike idu jedna ispod druge i povećavamo padding sekcije */
 @media (max-width: 768px) {
   .single-gallery-item-section { padding: 3.5rem 0; }
-  .single-gallery-item-section .single-gallery-item { padding: 1.25rem; }
+  .single-gallery-item-section .single-gallery-item { padding: 1.5rem; }
   .single-gallery-item-section .gallery-images.two-col { grid-template-columns: 1fr; }
   .single-gallery-item-section .single-gallery-item .entry-header,
   .single-gallery-item-section .single-gallery-item .gallery-images,
