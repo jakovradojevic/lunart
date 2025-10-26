@@ -1132,8 +1132,9 @@ add_filter('wp_resource_hints', 'lunart_resource_hints', 10, 2);
  */
 function lunart_get_demo_gallery_data() {
     return array(
+        // 1
         array(
-            'title' => 'Restauracija crteža (ugalj)',
+            'title' => 'Restauracija crteža (ugalj) — Studija 1',
             'subtitle' => 'Konzervacija i restauracija crteža',
             'excerpt' => 'Uklanjanje diskoloracije i stabilizacija papira.',
             'content' => '<p>Ovaj crtež izveden u tehnici uglja prošao je kroz složen proces čišćenja i stabilizacije. Površinske nečistoće i kiseline uklonjene su mehaničkim i hemijskim metodama, uz poštovanje principa reversibilnosti.</p><p>Nakon toga urađena je konsolidacija vlakana papira i lokalna nivelacija nabora. Korišćeni su arhivski, pH-neutralni materijali koji obezbeđuju dugoročnu stabilnost rada.</p>',
@@ -1141,8 +1142,9 @@ function lunart_get_demo_gallery_data() {
             'before_image' => 'faded-charcoal-drawing.png',
             'after_image'  => 'conserved-charcoal-drawing.png'
         ),
+        // 2
         array(
-            'title' => 'Restauracija akvarela',
+            'title' => 'Restauracija akvarela — Studija 1',
             'subtitle' => 'Vraćanje originalnog sjaja boja',
             'excerpt' => 'Delikatan tretman akvarel papira i pigmenata.',
             'content' => '<p>Akvarel je osetljiva tehnika koja zahteva minimalno invazivne postupke. Bojeni sloj stabilizovan je fiksativima kompatibilnim sa pigmentima, dok su mrlje i žutilo tretirani selektivno kako bi se očuvao originalni karakter.</p><p>Posebna pažnja posvećena je ravnanju papira i korekciji talasanja, kako bi rad ponovo zadobio čitkost i vizuelnu ravnotežu.</p>',
@@ -1150,8 +1152,9 @@ function lunart_get_demo_gallery_data() {
             'before_image' => 'damaged-watercolor.png',
             'after_image'  => 'restored-watercolor-painting.png'
         ),
+        // 3
         array(
-            'title' => 'Vintage plakat — popravka',
+            'title' => 'Vintage plakat — Popravka (Studija 1)',
             'subtitle' => 'Uklanjanje cepotina i ojačavanje',
             'excerpt' => 'Stabilizacija vlakana i estetska rekonstrukcija.',
             'content' => '<p>Plakat je imao više mehaničkih oštećenja i cepotina duž ivica. Izvršena je dezacidifikacija papira i lokalna rekonstrukcija nedostajućih delova uz pomoć toniranih japanskih papira.</p><p>Na kraju je urađena zaštitna montaža na arhivski karton kako bi se obezbedila stabilnost tokom izlaganja i skladištenja.</p>',
@@ -1159,11 +1162,172 @@ function lunart_get_demo_gallery_data() {
             'before_image' => 'vintage-torn-poster.png',
             'after_image'  => 'restored-vintage-poster.png'
         ),
+        // 4
         array(
-            'title' => 'Konzervacija rukopisnih strana',
+            'title' => 'Konzervacija rukopisnih strana — Studija 1',
             'subtitle' => 'Arhivsko očuvanje dokumenata',
             'excerpt' => 'Čišćenje, neutralizacija kiselosti i zaštita.',
             'content' => '<p>Rukopisne strane tretirane su suvim i mokrim čišćenjem, uz pažljivo testiranje stabilnosti mastila. Kiselost je neutralisana tamponiranim rastvorima kako bi se usporilo dalje propadanje.</p><p>Nakon konzervacije, dokumenti su smešteni u zaštitne omote od bezkiselinskih materijala, spremni za dugoročno arhivsko čuvanje.</p>',
+            'category' => 'Rukopis',
+            'before_image' => 'preserved-manuscript-pages.png',
+            'after_image'  => 'conserved-manuscript-pages.png'
+        ),
+        // 5
+        array(
+            'title' => 'Restauracija crteža (ugalj) — Studija 2',
+            'subtitle' => 'Konzervacija suvim metodama',
+            'excerpt' => 'Mehaničko uklanjanje nečistoća i konsolidacija.',
+            'content' => '<p>Korišćene su suve gumice i četke za uklanjanje površinskih nečistoća. Nakon čišćenja, izvršena je lokalna konsolidacija slabih vlakana.</p><p>Primena je bila minimalno invazivna kako bi se očuvao originalni trag alata.</p>',
+            'category' => 'Crtež',
+            'before_image' => 'faded-charcoal-drawing.png',
+            'after_image'  => 'conserved-charcoal-drawing.png'
+        ),
+        // 6
+        array(
+            'title' => 'Restauracija akvarela — Studija 2',
+            'subtitle' => 'Stabilizacija pigmenta',
+            'excerpt' => 'Fiksiranje bojenog sloja i nivelacija papira.',
+            'content' => '<p>Stabilizovan je sloj akvarela korišćenjem kompatibilnih fiksativa, a zatim je izvršena blaga nivelacija talasanja papira pod kontrolisanim uslovima vlage.</p>',
+            'category' => 'Akvarel',
+            'before_image' => 'damaged-watercolor.png',
+            'after_image'  => 'restored-watercolor-painting.png'
+        ),
+        // 7
+        array(
+            'title' => 'Vintage plakat — Popravka (Studija 2)',
+            'subtitle' => 'Rekonstrukcija ivica',
+            'excerpt' => 'Tonirani japanski papir i reversibilna lepila.',
+            'content' => '<p>Nedostajući delovi su rekonstruisani toniranim japanskim papirom, zalepljeni reversibilnim lepkom. Fokus na estetskoj i strukturnoj stabilnosti.</p>',
+            'category' => 'Plakat',
+            'before_image' => 'vintage-torn-poster.png',
+            'after_image'  => 'restored-vintage-poster.png'
+        ),
+        // 8
+        array(
+            'title' => 'Konzervacija rukopisa — Studija 2',
+            'subtitle' => 'Neutralizacija kiselosti',
+            'excerpt' => 'Tamponirani rastvori za dugoročnu stabilnost.',
+            'content' => '<p>Primena tamponiranih rastvora radi neutralizacije kiselosti papira i usporavanja degradacije celuloznih vlakana.</p>',
+            'category' => 'Rukopis',
+            'before_image' => 'preserved-manuscript-pages.png',
+            'after_image'  => 'conserved-manuscript-pages.png'
+        ),
+        // 9
+        array(
+            'title' => 'Restauracija crteža (ugalj) — Studija 3',
+            'subtitle' => 'Popravka nabora',
+            'excerpt' => 'Lokalna nivelacija i pritisci.',
+            'content' => '<p>Upotrebljeni su lokalni pritisci i vlažne komore za izravnavanje nabora bez oštećenja crteža.</p>',
+            'category' => 'Crtež',
+            'before_image' => 'faded-charcoal-drawing.png',
+            'after_image'  => 'conserved-charcoal-drawing.png'
+        ),
+        // 10
+        array(
+            'title' => 'Restauracija akvarela — Studija 3',
+            'subtitle' => 'Selektivno čišćenje',
+            'excerpt' => 'Uklanjanje mrlja uz očuvanje pigmenata.',
+            'content' => '<p>Mrlje su uklonjene selektivno, uz testove otpornosti pigmenata, kako bi se izbeglo razlivanje boje.</p>',
+            'category' => 'Akvarel',
+            'before_image' => 'damaged-watercolor.png',
+            'after_image'  => 'restored-watercolor-painting.png'
+        ),
+        // 11
+        array(
+            'title' => 'Vintage plakat — Popravka (Studija 3)',
+            'subtitle' => 'Dezacidifikacija',
+            'excerpt' => 'Hemijska stabilizacija papira.',
+            'content' => '<p>Dezacidifikacija je sprovedena radi usporavanja starenja papira pre estetske rekonstrukcije.</p>',
+            'category' => 'Plakat',
+            'before_image' => 'vintage-torn-poster.png',
+            'after_image'  => 'restored-vintage-poster.png'
+        ),
+        // 12
+        array(
+            'title' => 'Konzervacija rukopisa — Studija 3',
+            'subtitle' => 'Zaštitna montaža',
+            'excerpt' => 'Arhivski omoti i folderi.',
+            'content' => '<p>Nakon tretmana, rukopisne strane su montirane u arhivske omote i foldere od bezkiselinskih materijala.</p>',
+            'category' => 'Rukopis',
+            'before_image' => 'preserved-manuscript-pages.png',
+            'after_image'  => 'conserved-manuscript-pages.png'
+        ),
+        // 13
+        array(
+            'title' => 'Restauracija crteža (ugalj) — Studija 4',
+            'subtitle' => 'Korekcija fleka',
+            'excerpt' => 'Lokalna redukcija diskoloracija.',
+            'content' => '<p>Izvršena je lokalna redukcija diskoloracija pomoću kontrolisanih sredstava, bez uticaja na pigment.</p>',
+            'category' => 'Crtež',
+            'before_image' => 'faded-charcoal-drawing.png',
+            'after_image'  => 'conserved-charcoal-drawing.png'
+        ),
+        // 14
+        array(
+            'title' => 'Restauracija akvarela — Studija 4',
+            'subtitle' => 'Ravnanje talasanja',
+            'excerpt' => 'Kontrolisana vlaga i pritisak.',
+            'content' => '<p>Postignuta je ravnoteža papira kroz postupak vlaženja i presovanja između upijajućih listova.</p>',
+            'category' => 'Akvarel',
+            'before_image' => 'damaged-watercolor.png',
+            'after_image'  => 'restored-watercolor-painting.png'
+        ),
+        // 15
+        array(
+            'title' => 'Vintage plakat — Popravka (Studija 4)',
+            'subtitle' => 'Stabilizacija vlakana',
+            'excerpt' => 'Reverzibilna lepila i podloške.',
+            'content' => '<p>Ojačane su slabije zone papira primenom tankih podložnih traka radi ravnomernog opterećenja.</p>',
+            'category' => 'Plakat',
+            'before_image' => 'vintage-torn-poster.png',
+            'after_image'  => 'restored-vintage-poster.png'
+        ),
+        // 16
+        array(
+            'title' => 'Konzervacija rukopisa — Studija 4',
+            'subtitle' => 'Stabilizacija mastila',
+            'excerpt' => 'Testovi otpornosti i zaštitni slojevi.',
+            'content' => '<p>Izvršeni su testovi otpornosti mastila na vlagu i mehanički pritisak, sa preventivnim merama za dalje čuvanje.</p>',
+            'category' => 'Rukopis',
+            'before_image' => 'preserved-manuscript-pages.png',
+            'after_image'  => 'conserved-manuscript-pages.png'
+        ),
+        // 17
+        array(
+            'title' => 'Restauracija crteža (ugalj) — Studija 5',
+            'subtitle' => 'Konsolidacija papira',
+            'excerpt' => 'Arhivski, pH-neutralni materijali.',
+            'content' => '<p>Korišćena su pH-neutralna sredstva za konsolidaciju vlakana bez narušavanja vizuelnih karakteristika.</p>',
+            'category' => 'Crtež',
+            'before_image' => 'faded-charcoal-drawing.png',
+            'after_image'  => 'conserved-charcoal-drawing.png'
+        ),
+        // 18
+        array(
+            'title' => 'Restauracija akvarela — Studija 5',
+            'subtitle' => 'Zaštita od UV zračenja',
+            'excerpt' => 'Preventivni pristup dugom veku.',
+            'content' => '<p>Preporučeno je korišćenje UV zaštitnih stakala i kontrola osvetljenja prilikom izlaganja akvarela.</p>',
+            'category' => 'Akvarel',
+            'before_image' => 'damaged-watercolor.png',
+            'after_image'  => 'restored-watercolor-painting.png'
+        ),
+        // 19
+        array(
+            'title' => 'Vintage plakat — Popravka (Studija 5)',
+            'subtitle' => 'Montaža na arhivski karton',
+            'excerpt' => 'Stabilnost tokom izlaganja.',
+            'content' => '<p>Plakat je montiran na arhivski karton kako bi se obezbedila dugoročna stabilnost i lakše rukovanje.</p>',
+            'category' => 'Plakat',
+            'before_image' => 'vintage-torn-poster.png',
+            'after_image'  => 'restored-vintage-poster.png'
+        ),
+        // 20
+        array(
+            'title' => 'Konzervacija rukopisnih strana — Studija 5',
+            'subtitle' => 'Kompletna arhivska priprema',
+            'excerpt' => 'Čišćenje, neutralizacija i zaštita.',
+            'content' => '<p>Kompletan set mera od čišćenja i neutralizacije do smeštanja u arhivske kutije, spremno za depo.</p>',
             'category' => 'Rukopis',
             'before_image' => 'preserved-manuscript-pages.png',
             'after_image'  => 'conserved-manuscript-pages.png'
@@ -2047,3 +2211,12 @@ if (!function_exists('lunart_import_contact_form7')) {
         );
     }
 }
+
+
+// Remove 'navigation' class from pagination markup globally
+// This ensures WP outputs <nav class="pagination"> instead of <nav class="navigation pagination">
+add_filter('navigation_markup_template', function($template, $class) {
+    // Inner .nav-links wrapper; screen-reader label removed per request
+    // Placeholders: %1$s = CSS classes, %3$s = links
+    return '<nav class="%1$s" role="navigation"><div class="nav-links">%3$s</div></nav>';
+}, 10, 2);

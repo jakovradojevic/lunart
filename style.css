@@ -2210,3 +2210,152 @@ body.admin-bar .navigation { top: 32px; }
   .single-gallery-item-section .single-gallery-item .gallery-images,
   .single-gallery-item-section .single-gallery-item .entry-content { margin-bottom: 1.5rem; }
 }
+
+
+/* --- Gallery Filters spacing & layout improvements --- */
+.gallery-archive-section .gallery-filters { padding: 0.5rem 0.75rem; }
+.gallery-archive-section .gallery-filters .btn { margin: 0.25rem; }
+.gallery-archive-section .gallery-filters .btn-sm { padding: 0.55rem 1rem; font-size: 0.95rem; }
+.gallery-archive-section .gallery-filters .btn-xs { padding: 0.4rem 0.75rem; font-size: 0.85rem; }
+/* New rows */
+.gallery-archive-section .gallery-filters-cats { margin-bottom: 0.5rem; }
+.gallery-archive-section .gallery-filters-per-page { margin-top: 0.25rem; }
+.gallery-archive-section .gallery-filters .text-sm { font-size: 0.9rem; }
+.gallery-archive-section .gallery-filters .ml-4 { margin-left: 1rem; }
+.gallery-archive-section .gallery-filters .inline-flex { display: inline-flex; }
+.gallery-archive-section .gallery-filters .items-center { align-items: center; }
+.gallery-archive-section .gallery-filters .gap-2 { gap: 0.5rem; }
+/* Select styling */
+.gallery-archive-section .pp-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: var(--background);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.45rem 2rem 0.45rem 0.75rem;
+  font: inherit;
+  line-height: 1.2;
+}
+.gallery-archive-section .per-page-form { position: relative; }
+.gallery-archive-section .per-page-form:after {
+  content: "\25BE"; /* ▼ */
+  position: absolute;
+  right: 0.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--muted-foreground);
+}
+
+/* --- Blog: View All button margin fix --- */
+.blog-section .view-all-btn {
+  margin-top: 0.75rem;
+}
+
+
+/* --- Mobile optimizations (scoped, minimal) --- */
+/* Improve tap targets in gallery filters */
+.gallery-archive-section .gallery-filters .btn { min-height: 44px; }
+
+/* Respect reduced motion for decorative background animation */
+@media (prefers-reduced-motion: reduce) {
+  .hero-background::before { animation: none !important; }
+}
+
+/* Small-screen layout refinements */
+@media (max-width: 640px) {
+  /* Stack before/after images vertically inside gallery items */
+  .gallery-item .gallery-images { grid-template-columns: 1fr; }
+  .gallery-item .gallery-image { height: 12rem; }
+
+  /* Gallery filters: allow horizontal scrolling for category chips only */
+  .gallery-archive-section .gallery-filters-cats {
+    justify-content: flex-start;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+    padding: 0.5rem 0.25rem;
+  }
+  .gallery-archive-section .gallery-filters-cats .ml-4 { margin-left: 0.5rem; }
+  .gallery-archive-section .gallery-filters-cats .btn { margin: 0.2rem; }
+  .gallery-archive-section .gallery-filters-per-page { justify-content: center; }
+
+  /* Pagination: allow wrapping and slightly smaller paddings */
+  .pagination { flex-wrap: wrap; gap: 0.5rem; }
+  .pagination a { padding: 0.6rem 0.8rem; }
+}
+
+
+/* Enhanced Pagination Buttons (theme-aligned) */
+.pagination .page-numbers {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  padding: 0 0.75rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--background);
+  color: var(--foreground);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.pagination .page-numbers.prev,
+.pagination .page-numbers.next {
+  padding: 0 0.9rem;
+}
+.pagination .page-numbers:hover,
+.pagination .page-numbers:focus {
+  border-color: var(--primary);
+  color: var(--primary);
+  background-color: rgba(241, 14, 85, 0.08);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(241, 14, 85, 0.12);
+}
+.pagination .page-numbers.current {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+  cursor: default;
+}
+.pagination .dots {
+  color: var(--muted-foreground);
+  padding: 0 0.25rem;
+}
+
+/* In-content page pagination (<!--nextpage-->) */
+.pagination-pages {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 1rem;
+}
+.pagination-pages .page-number,
+.pagination-pages .page-number a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.25rem;
+  height: 2.25rem;
+  padding: 0 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  text-decoration: none;
+  color: var(--foreground);
+  background: var(--background);
+}
+.pagination-pages .page-number a:hover,
+.pagination-pages .page-number a:focus {
+  border-color: var(--primary);
+  color: var(--primary);
+  background-color: rgba(241, 14, 85, 0.08);
+}
+
+/* Mobile adjustments for pagination buttons */
+@media (max-width: 640px) {
+  .pagination .page-numbers { min-width: 2.25rem; height: 2.25rem; padding: 0 0.6rem; }
+}

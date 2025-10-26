@@ -25,26 +25,32 @@ get_header(); ?>
                 $per_page = isset($_GET['pp']) ? intval($_GET['pp']) : 12;
                 $terms_list = get_terms(array('taxonomy' => 'gallery_category', 'hide_empty' => true));
                 if (!is_wp_error($terms_list) && !empty($terms_list)) : ?>
-                    <div class="gallery-filters flex flex-wrap gap-2 justify-center mb-10">
-                        <?php 
-                        $base_url = get_post_type_archive_link('gallery_item');
-                        $all_url = add_query_arg(array_filter(array('pp' => $per_page ?: null)), $base_url);
-                        ?>
-                        <a href="<?php echo esc_url($all_url); ?>" class="btn btn-sm <?php echo empty($active_filter) ? 'btn-primary' : 'btn-outline'; ?>">Sve</a>
-                        <?php foreach ($terms_list as $term) : 
-                            $url = add_query_arg(array_filter(array('gallery_category' => $term->slug, 'pp' => $per_page ?: null)), $base_url);
-                            $is_active = ($active_filter === $term->slug);
-                        ?>
-                            <a href="<?php echo esc_url($url); ?>" class="btn btn-sm <?php echo $is_active ? 'btn-primary' : 'btn-outline'; ?>"><?php echo esc_html($term->name); ?></a>
-                        <?php endforeach; ?>
-                        <div class="ml-4 inline-flex items-center gap-2">
-                            <span class="text-sm text-muted-foreground">Po stranici:</span>
-                            <?php foreach (array(6,12,24,36,48) as $opt) : 
-                                $url = add_query_arg(array_filter(array('gallery_category' => $active_filter ?: null, 'pp' => $opt)), $base_url);
-                                $cls = $per_page == $opt ? 'btn-primary' : 'btn-outline';
+                    <?php 
+                    $base_url = get_post_type_archive_link('gallery_item');
+                    $all_url = add_query_arg(array_filter(array('pp' => $per_page ?: null)), $base_url);
+                    ?>
+                    <div class="gallery-filters">
+                        <div class="gallery-filters-cats flex flex-wrap gap-2 justify-center mb-4">
+                            <a href="<?php echo esc_url($all_url); ?>" class="btn btn-sm <?php echo empty($active_filter) ? 'btn-primary' : 'btn-outline'; ?>">Sve</a>
+                            <?php foreach ($terms_list as $term) : 
+                                $url = add_query_arg(array_filter(array('gallery_category' => $term->slug, 'pp' => $per_page ?: null)), $base_url);
+                                $is_active = ($active_filter === $term->slug);
                             ?>
-                                <a href="<?php echo esc_url($url); ?>" class="btn btn-xs <?php echo $cls; ?>"><?php echo (int)$opt; ?></a>
+                                <a href="<?php echo esc_url($url); ?>" class="btn btn-sm <?php echo $is_active ? 'btn-primary' : 'btn-outline'; ?>"><?php echo esc_html($term->name); ?></a>
                             <?php endforeach; ?>
+                        </div>
+                        <div class="gallery-filters-per-page flex flex-wrap items-center gap-2 justify-end">
+                            <form class="per-page-form" action="<?php echo esc_url($base_url); ?>" method="get">
+                                <?php if (!empty($active_filter)) : ?>
+                                    <input type="hidden" name="gallery_category" value="<?php echo esc_attr($active_filter); ?>" />
+                                <?php endif; ?>
+                                <label for="pp-select" class="text-sm text-muted-foreground mr-2">Po stranici:</label>
+                                <select id="pp-select" name="pp" class="pp-select" onchange="this.form.submit()">
+                                    <?php foreach (array(6,12,24,36,48) as $opt) : ?>
+                                        <option value="<?php echo (int)$opt; ?>" <?php selected($per_page, $opt); ?>><?php echo (int)$opt; ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </form>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -104,15 +110,23 @@ get_header(); ?>
 
                 <div class="pagination mt-12 flex justify-center">
                     <?php
+                    global $wp_query;
+                    $max_pages = isset($wp_query) ? (int) $wp_query->max_num_pages : 0;
                     $add_args = array();
                     if (!empty($active_filter)) { $add_args['gallery_category'] = $active_filter; }
                     if (!empty($per_page)) { $add_args['pp'] = $per_page; }
-                    the_posts_pagination(array(
-                        'mid_size'  => 1,
-                        'prev_text' => __('Prethodna', 'lunart'),
-                        'next_text' => __('Sledeća', 'lunart'),
-                        'add_args'  => $add_args,
-                    ));
+                    if ($max_pages > 1) {
+                        the_posts_pagination(array(
+                            'mid_size'  => 1,
+                            'prev_text' => __('Prethodna', 'lunart'),
+                            'next_text' => __('Sledeća', 'lunart'),
+                            'add_args'  => $add_args,
+                        ));
+                    } else {
+                        $page1_url = get_pagenum_link(1);
+                        if (!empty($add_args)) { $page1_url = add_query_arg($add_args, $page1_url); }
+                        echo '<a class="page-numbers current" href="' . esc_url($page1_url) . '">1</a>';
+                    }
                     ?>
                 </div>
             <?php else : ?>

@@ -529,7 +529,7 @@ function lunart_render_blog_teaser_block($attributes) {
 
             <?php if (!empty($a['showViewAll']) && $view_all_url): ?>
                 <div class="text-center mt-10">
-                    <a class="btn btn-primary elegant-hover" href="<?php echo esc_url($view_all_url); ?>">
+                    <a class="btn btn-primary elegant-hover view-all-btn" href="<?php echo esc_url($view_all_url); ?>">
                         <?php echo esc_html(!empty($a['viewAllLabel']) ? $a['viewAllLabel'] : __('Pogledaj sve objave', 'lunart')); ?>
                     </a>
                 </div>

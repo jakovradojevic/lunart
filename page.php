@@ -17,6 +17,16 @@ get_header(); ?>
                 </header>
                 <div class="entry-content">
                     <?php the_content(); ?>
+                    <?php
+                    // Support in-content pagination using <!--nextpage-->
+                    $link_args = array(
+                        'before'      => '<nav class="pagination pagination-pages"><span class="screen-reader-text">' . esc_html__('Stranice:', 'lunart') . '</span>',
+                        'after'       => '</nav>',
+                        'link_before' => '<span class="page-number">',
+                        'link_after'  => '</span>',
+                    );
+                    wp_link_pages($link_args);
+                    ?>
                 </div>
             </article>
         <?php endwhile; endif; ?>

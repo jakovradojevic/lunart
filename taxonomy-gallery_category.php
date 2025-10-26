@@ -28,26 +28,29 @@ get_header();
             $terms_list = get_terms(array('taxonomy' => 'gallery_category', 'hide_empty' => true));
             $current_term = get_queried_object();
             if (!is_wp_error($terms_list) && !empty($terms_list)) : ?>
-                <div class="gallery-filters flex flex-wrap gap-2 justify-center mb-10">
-                    <?php 
-                    $base_archive = get_post_type_archive_link('gallery_item');
-                    $base_term = get_term_link($current_term);
-                    ?>
-                    <a href="<?php echo esc_url(add_query_arg(array_filter(array('pp' => $per_page ?: null)), $base_archive)); ?>" class="btn btn-sm btn-outline">Sve</a>
-                    <?php foreach ($terms_list as $term) : 
-                        $url = add_query_arg(array_filter(array('pp' => $per_page ?: null)), get_term_link($term));
-                        $is_active = ($current_term && $current_term->term_id === $term->term_id);
-                    ?>
-                        <a href="<?php echo esc_url($url); ?>" class="btn btn-sm <?php echo $is_active ? 'btn-primary' : 'btn-outline'; ?>"><?php echo esc_html($term->name); ?></a>
-                    <?php endforeach; ?>
-                    <div class="ml-4 inline-flex items-center gap-2">
-                        <span class="text-sm text-muted-foreground">Po stranici:</span>
-                        <?php foreach (array(6,12,24,36,48) as $opt) : 
-                            $url = add_query_arg(array('pp' => $opt), $base_term);
-                            $cls = $per_page == $opt ? 'btn-primary' : 'btn-outline';
+                <?php 
+                $base_archive = get_post_type_archive_link('gallery_item');
+                $base_term = get_term_link($current_term);
+                ?>
+                <div class="gallery-filters">
+                    <div class="gallery-filters-cats flex flex-wrap gap-2 justify-center mb-4">
+                        <a href="<?php echo esc_url(add_query_arg(array_filter(array('pp' => $per_page ?: null)), $base_archive)); ?>" class="btn btn-sm btn-outline">Sve</a>
+                        <?php foreach ($terms_list as $term) : 
+                            $url = add_query_arg(array_filter(array('pp' => $per_page ?: null)), get_term_link($term));
+                            $is_active = ($current_term && $current_term->term_id === $term->term_id);
                         ?>
-                            <a href="<?php echo esc_url($url); ?>" class="btn btn-xs <?php echo $cls; ?>"><?php echo (int)$opt; ?></a>
+                            <a href="<?php echo esc_url($url); ?>" class="btn btn-sm <?php echo $is_active ? 'btn-primary' : 'btn-outline'; ?>"><?php echo esc_html($term->name); ?></a>
                         <?php endforeach; ?>
+                    </div>
+                    <div class="gallery-filters-per-page flex flex-wrap items-center gap-2 justify-end">
+                        <form class="per-page-form" action="<?php echo esc_url($base_term); ?>" method="get">
+                            <label for="pp-select" class="text-sm text-muted-foreground mr-2">Po stranici:</label>
+                            <select id="pp-select" name="pp" class="pp-select" onchange="this.form.submit()">
+                                <?php foreach (array(6,12,24,36,48) as $opt) : ?>
+                                    <option value="<?php echo (int)$opt; ?>" <?php selected($per_page, $opt); ?>><?php echo (int)$opt; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </form>
                     </div>
                 </div>
             <?php endif; ?>
@@ -106,12 +109,20 @@ get_header();
                 </div>
                 <div class="pagination mt-12 flex justify-center">
                     <?php
-                    the_posts_pagination(array(
-                        'mid_size'  => 1,
-                        'prev_text' => __('Prethodna', 'lunart'),
-                        'next_text' => __('Sledeća', 'lunart'),
-                        'add_args'  => array_filter(array('pp' => $per_page ?: null)),
-                    ));
+                    global $wp_query;
+                    $max_pages = isset($wp_query) ? (int) $wp_query->max_num_pages : 0;
+                    if ($max_pages > 1) {
+                        the_posts_pagination(array(
+                            'mid_size'  => 1,
+                            'prev_text' => __('Prethodna', 'lunart'),
+                            'next_text' => __('Sledeća', 'lunart'),
+                            'add_args'  => array_filter(array('pp' => $per_page ?: null)),
+                        ));
+                    } else {
+                        $page1_url = get_pagenum_link(1);
+                        $page1_url = add_query_arg(array_filter(array('pp' => $per_page ?: null)), $page1_url);
+                        echo '<a class="page-numbers current" href="' . esc_url($page1_url) . '">1</a>';
+                    }
                     ?>
                 </div>
             <?php else : ?>
