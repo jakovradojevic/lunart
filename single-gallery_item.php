@@ -15,7 +15,11 @@ get_header(); ?>
             ?>
                 <article id="post-<?php the_ID(); ?>" <?php post_class('single-gallery-item elegant-border'); ?>>
                     <header class="entry-header text-center mb-10">
-                        <?php if (!empty($category)) : ?>
+                        <?php
+                            $terms = get_the_terms(get_the_ID(), 'gallery_category');
+                            if (!is_wp_error($terms) && !empty($terms)) : ?>
+                            <div class="mb-2"><?php foreach ($terms as $t): ?><span class="gallery-category"><?php echo esc_html($t->name); ?></span><?php endforeach; ?></div>
+                        <?php elseif (!empty($category)) : ?>
                             <span class="gallery-category block mb-2"><?php echo esc_html($category); ?></span>
                         <?php endif; ?>
                         <h1 class="entry-title gallery-title mb-2"><?php the_title(); ?></h1>

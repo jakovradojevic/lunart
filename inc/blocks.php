@@ -362,6 +362,7 @@ function lunart_register_gallery_block() {
             'heading' => array('type' => 'string', 'default' => 'Galerija Radova'),
             'description' => array('type' => 'string', 'default' => 'Pogledajte transformacije koje smo ostvarili kroz godine rada - svaki projekat je jedinstvena priča o obnovi umetnosti'),
             'limit' => array('type' => 'number', 'default' => 12),
+            'category' => array('type' => 'string', 'default' => ''), // gallery_category slug(s)
             'ctaTitle' => array('type' => 'string', 'default' => 'Želite da vidite više?'),
             'ctaDesc' => array('type' => 'string', 'default' => 'Posetite našu kompletnu galeriju sa preko 200 uspešno restauriranih radova'),
             'ctaBtnLabel' => array('type' => 'string', 'default' => 'Kompletna Galerija'),
@@ -389,7 +390,10 @@ function lunart_render_gallery_block($attributes) {
                     <?php echo esc_html(isset($a['description']) ? $a['description'] : ''); ?>
                 </p>
             </div>
-            <?php echo do_shortcode('[lunart_gallery limit="' . $limit . '"]'); ?>
+            <?php
+                $cat = isset($a['category']) ? sanitize_text_field($a['category']) : '';
+                echo do_shortcode('[lunart_gallery limit="' . $limit . '"' . ($cat ? ' category="' . esc_attr($cat) . '"' : '') . ']');
+            ?>
             <div class="cta-section text-center mt-16">
                 <div class="elegant-border max-w-2xl mx-auto p-12">
                     <h3 class="text-2xl font-serif font-semibold mb-6"><?php echo esc_html(isset($a['ctaTitle']) ? $a['ctaTitle'] : ''); ?></h3>

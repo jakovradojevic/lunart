@@ -68,6 +68,7 @@
             heading: { type: 'string', default: 'Galerija Radova' },
             description: { type: 'string', default: 'Pogledajte transformacije koje smo ostvarili kroz godine rada - svaki projekat je jedinstvena priča o obnovi umetnosti' },
             limit: { type: 'number', default: 12 },
+            category: { type: 'string', default: '' }, // gallery_category slug(s), comma-separated
             ctaTitle: { type: 'string', default: 'Želite da vidite više?' },
             ctaDesc: { type: 'string', default: 'Posetite našu kompletnu galeriju sa preko 200 uspešno restauriranih radova' },
             ctaBtnLabel: { type: 'string', default: 'Kompletna Galerija' },

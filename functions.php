@@ -444,6 +444,29 @@ function lunart_woocommerce_wrapper_after() {
  * Add custom post types for gallery items
  */
 function lunart_custom_post_types() {
+    // Register Gallery Category taxonomy (hierarchical)
+    register_taxonomy('gallery_category', 'gallery_item', array(
+        'hierarchical' => true,
+        'labels' => array(
+            'name' => __('Kategorije Galerije', 'lunart'),
+            'singular_name' => __('Kategorija Galerije', 'lunart'),
+            'search_items' => __('Pretraži kategorije', 'lunart'),
+            'all_items' => __('Sve kategorije', 'lunart'),
+            'parent_item' => __('Nadređena kategorija', 'lunart'),
+            'parent_item_colon' => __('Nadređena kategorija:', 'lunart'),
+            'edit_item' => __('Uredi kategoriju', 'lunart'),
+            'update_item' => __('Ažuriraj kategoriju', 'lunart'),
+            'add_new_item' => __('Dodaj novu kategoriju', 'lunart'),
+            'new_item_name' => __('Naziv nove kategorije', 'lunart'),
+            'menu_name' => __('Kategorije', 'lunart'),
+        ),
+        'show_ui' => true,
+        'show_admin_column' => true,
+        'query_var' => true,
+        'rewrite' => array('slug' => 'galerija/kategorija'),
+        'show_in_rest' => true,
+    ));
+
     // Gallery Post Type
     register_post_type('gallery_item',
         array(
@@ -464,6 +487,8 @@ function lunart_custom_post_types() {
             'supports' => array('title', 'editor', 'thumbnail', 'excerpt'),
             'menu_icon' => 'dashicons-format-gallery',
             'rewrite' => array('slug' => 'galerija'),
+            'taxonomies' => array('gallery_category'),
+            'show_in_rest' => true,
         )
     );
 
@@ -574,11 +599,6 @@ function lunart_gallery_meta_box_callback($post) {
     echo '</td>';
     echo '</tr>';
 
-    // Category
-    echo '<tr>';
-    echo '<th><label for="category">' . __('Kategorija', 'lunart') . '</label></th>';
-    echo '<td><input type="text" id="category" name="category" value="' . esc_attr($category) . '" class="regular-text" /></td>';
-    echo '</tr>';
 
     // Subtitle
     echo '<tr>';
@@ -660,9 +680,6 @@ function lunart_save_gallery_meta($post_id) {
         update_post_meta($post_id, '_after_image', esc_url_raw($_POST['after_image']));
     }
 
-    if (isset($_POST['category'])) {
-        update_post_meta($post_id, '_category', sanitize_text_field($_POST['category']));
-    }
 
     if (isset($_POST['subtitle'])) {
         update_post_meta($post_id, '_subtitle', sanitize_text_field($_POST['subtitle']));
@@ -933,24 +950,37 @@ function lunart_get_service_taksativne_opcije_html($post_id = null) {
  */
 function lunart_gallery_shortcode($atts) {
     $atts = shortcode_atts(array(
-        'category' => '',
+        'category' => '', // slug or comma-separated slugs of gallery_category
         'limit' => 6,
     ), $atts);
 
     $args = array(
         'post_type' => 'gallery_item',
-        'posts_per_page' => $atts['limit'],
+        'posts_per_page' => intval($atts['limit']),
         'post_status' => 'publish',
     );
 
     if (!empty($atts['category'])) {
-        $args['meta_query'] = array(
-            array(
-                'key' => '_category',
-                'value' => $atts['category'],
-                'compare' => '=',
-            ),
-        );
+        // Support comma-separated list of slugs
+        $slugs = array_filter(array_map('trim', explode(',', $atts['category'])));
+        if (!empty($slugs)) {
+            $args['tax_query'] = array(
+                array(
+                    'taxonomy' => 'gallery_category',
+                    'field'    => 'slug',
+                    'terms'    => $slugs,
+                ),
+            );
+        } else {
+            // Back-compat: keep meta fallback if category provided but not valid slugs
+            $args['meta_query'] = array(
+                array(
+                    'key' => '_category',
+                    'value' => $atts['category'],
+                    'compare' => '=',
+                ),
+            );
+        }
     }
 
     $gallery_query = new WP_Query($args);
@@ -963,27 +993,44 @@ function lunart_gallery_shortcode($atts) {
             $gallery_query->the_post();
             $before_image = get_post_meta(get_the_ID(), '_before_image', true);
             $after_image = get_post_meta(get_the_ID(), '_after_image', true);
-            $category = get_post_meta(get_the_ID(), '_category', true);
             $subtitle = get_post_meta(get_the_ID(), '_subtitle', true);
+            // Prefer taxonomy terms; fallback to legacy meta
+            $terms = get_the_terms(get_the_ID(), 'gallery_category');
+            $category_html = '';
+            if (!is_wp_error($terms) && !empty($terms)) {
+                foreach ($terms as $t) {
+                    $category_html .= '<span class="gallery-category">' . esc_html($t->name) . '</span>';
+                }
+            } else {
+                $legacy = get_post_meta(get_the_ID(), '_category', true);
+                if (!empty($legacy)) { $category_html = '<span class="gallery-category">' . esc_html($legacy) . '</span>'; }
+            }
 
             $output .= '<div class="gallery-item elegant-border overflow-hidden elegant-hover">';
             $output .= '<div class="gallery-images">';
-            $output .= '<div class="gallery-image">';
-            $output .= '<img src="' . esc_url($before_image) . '" alt="' . get_the_title() . ' - pre restauracije">';
-            $output .= '<div class="gallery-image-overlay"><span>PRE</span></div>';
-            $output .= '</div>';
-            $output .= '<div class="gallery-image">';
-            $output .= '<img src="' . esc_url($after_image) . '" alt="' . get_the_title() . ' - posle restauracije">';
-            $output .= '<div class="gallery-image-overlay"><span>POSLE</span></div>';
-            $output .= '</div>';
+            if (!empty($before_image)) {
+                $output .= '<div class="gallery-image">';
+                $output .= '<img src="' . esc_url($before_image) . '" alt="' . esc_attr(get_the_title() . ' - pre restauracije') . '">';
+                $output .= '<div class="gallery-image-overlay"><span>PRE</span></div>';
+                $output .= '</div>';
+            }
+            if (!empty($after_image)) {
+                $output .= '<div class="gallery-image">';
+                $output .= '<img src="' . esc_url($after_image) . '" alt="' . esc_attr(get_the_title() . ' - posle restauracije') . '">';
+                $output .= '<div class="gallery-image-overlay"><span>POSLE</span></div>';
+                $output .= '</div>';
+            }
             $output .= '</div>';
             $output .= '<div class="gallery-content">';
-            $output .= '<div class="flex items-center justify-between mb-3">';
-            if (!empty($category)) {
-                $output .= '<span class="gallery-category">' . esc_html($category) . '</span>';
-            } else {
-                $output .= '<span class="gallery-category">&nbsp;</span>';
+            if (!empty($category_html)) {
+                $output .= '<div class="gallery-tags mb-3">' . $category_html . '</div>';
             }
+            $output .= '<h3 class="gallery-title">' . get_the_title() . '</h3>';
+            if (!empty($subtitle)) {
+                $output .= '<div class="gallery-subtitle" style="opacity:0.8; margin-top: -0.5rem;">' . esc_html($subtitle) . '</div>';
+            }
+            $output .= '<p class="gallery-description">' . get_the_excerpt() . '</p>';
+            $output .= '<div class="gallery-actions mt-3">';
             $output .= '<a href="' . esc_url(get_permalink()) . '" class="btn btn-outline text-muted-foreground hover:text-primary">';
             $output .= '<svg class="h-4 w-4 mr-1" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">';
             $output .= '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>';
@@ -992,11 +1039,6 @@ function lunart_gallery_shortcode($atts) {
             $output .= 'Detalji';
             $output .= '</a>';
             $output .= '</div>';
-            $output .= '<h3 class="gallery-title">' . get_the_title() . '</h3>';
-            if (!empty($subtitle)) {
-                $output .= '<div class="gallery-subtitle" style="opacity:0.8; margin-top: -0.5rem;">' . esc_html($subtitle) . '</div>';
-            }
-            $output .= '<p class="gallery-description">' . get_the_excerpt() . '</p>';
             $output .= '</div>';
             $output .= '</div>';
         }
@@ -1177,7 +1219,18 @@ function lunart_import_demo_gallery($overwrite = false) {
         }
 
         if (!empty($item['category'])) {
-            update_post_meta($post_id, '_category', sanitize_text_field($item['category']));
+            // Create/find taxonomy term and assign to post
+            $term_name = sanitize_text_field($item['category']);
+            $term = term_exists($term_name, 'gallery_category');
+            if (!$term) {
+                $term = wp_insert_term($term_name, 'gallery_category');
+            }
+            if (!is_wp_error($term)) {
+                $term_id = is_array($term) ? (int)$term['term_id'] : (int)$term;
+                wp_set_post_terms($post_id, array($term_id), 'gallery_category', false);
+            }
+            // Keep legacy meta for backward compatibility
+            update_post_meta($post_id, '_category', $term_name);
         }
         if (!empty($item['subtitle'])) {
             update_post_meta($post_id, '_subtitle', sanitize_text_field($item['subtitle']));
