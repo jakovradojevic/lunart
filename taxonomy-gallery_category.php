@@ -1,53 +1,56 @@
 <?php
 /**
- * Archive template for Gallery Items (gallery_item)
+ * Taxonomy archive for Gallery Categories (gallery_category)
  */
-get_header(); ?>
-
+get_header();
+?>
 <main id="primary" class="site-main">
     <section class="gallery-archive-section">
         <div class="absolute inset-0 paper-texture opacity-20"></div>
         <div class="container relative z-10">
             <div class="text-center mb-16">
                 <h1 class="text-4xl md:text-5xl font-serif font-bold mb-6 gradient-text">
-                    Galerija Radova
+                    <?php single_term_title(); ?>
                 </h1>
                 <div class="section-divider"></div>
-                <p class="text-xl text-muted-foreground max-w-3xl mx-auto">
-                    Pregled pre i posle restauracije: pažljivo dokumentovane transformacije crteža, akvarela, plakata i rukopisa.
-                    Svaki rad priča priču o očuvanju i vraćanju originalne lepote uz arhivske, reverzibilne postupke.
-                </p>
+                <?php if (term_description()) : ?>
+                    <p class="text-xl text-muted-foreground max-w-3xl mx-auto"><?php echo term_description(); ?></p>
+                <?php else : ?>
+                    <p class="text-xl text-muted-foreground max-w-3xl mx-auto">
+                        Pregled radova iz odabrane kategorije galerije.
+                    </p>
+                <?php endif; ?>
             </div>
 
             <?php 
-                // Term filter bar
-                $active_filter = isset($_GET['gallery_category']) ? sanitize_text_field(wp_unslash($_GET['gallery_category'])) : '';
-                $per_page = isset($_GET['pp']) ? intval($_GET['pp']) : 12;
-                $terms_list = get_terms(array('taxonomy' => 'gallery_category', 'hide_empty' => true));
-                if (!is_wp_error($terms_list) && !empty($terms_list)) : ?>
-                    <div class="gallery-filters flex flex-wrap gap-2 justify-center mb-10">
-                        <?php 
-                        $base_url = get_post_type_archive_link('gallery_item');
-                        $all_url = add_query_arg(array_filter(array('pp' => $per_page ?: null)), $base_url);
+            // Controls
+            $per_page = isset($_GET['pp']) ? intval($_GET['pp']) : 12;
+            $terms_list = get_terms(array('taxonomy' => 'gallery_category', 'hide_empty' => true));
+            $current_term = get_queried_object();
+            if (!is_wp_error($terms_list) && !empty($terms_list)) : ?>
+                <div class="gallery-filters flex flex-wrap gap-2 justify-center mb-10">
+                    <?php 
+                    $base_archive = get_post_type_archive_link('gallery_item');
+                    $base_term = get_term_link($current_term);
+                    ?>
+                    <a href="<?php echo esc_url(add_query_arg(array_filter(array('pp' => $per_page ?: null)), $base_archive)); ?>" class="btn btn-sm btn-outline">Sve</a>
+                    <?php foreach ($terms_list as $term) : 
+                        $url = add_query_arg(array_filter(array('pp' => $per_page ?: null)), get_term_link($term));
+                        $is_active = ($current_term && $current_term->term_id === $term->term_id);
+                    ?>
+                        <a href="<?php echo esc_url($url); ?>" class="btn btn-sm <?php echo $is_active ? 'btn-primary' : 'btn-outline'; ?>"><?php echo esc_html($term->name); ?></a>
+                    <?php endforeach; ?>
+                    <div class="ml-4 inline-flex items-center gap-2">
+                        <span class="text-sm text-muted-foreground">Po stranici:</span>
+                        <?php foreach (array(6,12,24,36,48) as $opt) : 
+                            $url = add_query_arg(array('pp' => $opt), $base_term);
+                            $cls = $per_page == $opt ? 'btn-primary' : 'btn-outline';
                         ?>
-                        <a href="<?php echo esc_url($all_url); ?>" class="btn btn-sm <?php echo empty($active_filter) ? 'btn-primary' : 'btn-outline'; ?>">Sve</a>
-                        <?php foreach ($terms_list as $term) : 
-                            $url = add_query_arg(array_filter(array('gallery_category' => $term->slug, 'pp' => $per_page ?: null)), $base_url);
-                            $is_active = ($active_filter === $term->slug);
-                        ?>
-                            <a href="<?php echo esc_url($url); ?>" class="btn btn-sm <?php echo $is_active ? 'btn-primary' : 'btn-outline'; ?>"><?php echo esc_html($term->name); ?></a>
+                            <a href="<?php echo esc_url($url); ?>" class="btn btn-xs <?php echo $cls; ?>"><?php echo (int)$opt; ?></a>
                         <?php endforeach; ?>
-                        <div class="ml-4 inline-flex items-center gap-2">
-                            <span class="text-sm text-muted-foreground">Po stranici:</span>
-                            <?php foreach (array(6,12,24,36,48) as $opt) : 
-                                $url = add_query_arg(array_filter(array('gallery_category' => $active_filter ?: null, 'pp' => $opt)), $base_url);
-                                $cls = $per_page == $opt ? 'btn-primary' : 'btn-outline';
-                            ?>
-                                <a href="<?php echo esc_url($url); ?>" class="btn btn-xs <?php echo $cls; ?>"><?php echo (int)$opt; ?></a>
-                            <?php endforeach; ?>
-                        </div>
                     </div>
-                <?php endif; ?>
+                </div>
+            <?php endif; ?>
 
             <?php if (have_posts()) : ?>
                 <div class="gallery-grid">
@@ -101,27 +104,22 @@ get_header(); ?>
                         </div>
                     <?php endwhile; ?>
                 </div>
-
                 <div class="pagination mt-12 flex justify-center">
                     <?php
-                    $add_args = array();
-                    if (!empty($active_filter)) { $add_args['gallery_category'] = $active_filter; }
-                    if (!empty($per_page)) { $add_args['pp'] = $per_page; }
                     the_posts_pagination(array(
                         'mid_size'  => 1,
                         'prev_text' => __('Prethodna', 'lunart'),
                         'next_text' => __('Sledeća', 'lunart'),
-                        'add_args'  => $add_args,
+                        'add_args'  => array_filter(array('pp' => $per_page ?: null)),
                     ));
                     ?>
                 </div>
             <?php else : ?>
                 <div class="text-center py-12">
-                    <p class="text-muted-foreground text-lg">Trenutno nema radova u galeriji.</p>
+                    <p class="text-muted-foreground text-lg">Trenutno nema radova u ovoj kategoriji.</p>
                 </div>
             <?php endif; ?>
         </div>
     </section>
 </main>
-
 <?php get_footer(); ?>

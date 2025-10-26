@@ -999,7 +999,12 @@ function lunart_gallery_shortcode($atts) {
             $category_html = '';
             if (!is_wp_error($terms) && !empty($terms)) {
                 foreach ($terms as $t) {
-                    $category_html .= '<span class="gallery-category">' . esc_html($t->name) . '</span>';
+                    $link = get_term_link($t);
+                    if (!is_wp_error($link)) {
+                        $category_html .= '<a class="gallery-category" href="' . esc_url($link) . '">' . esc_html($t->name) . '</a>';
+                    } else {
+                        $category_html .= '<span class="gallery-category">' . esc_html($t->name) . '</span>';
+                    }
                 }
             } else {
                 $legacy = get_post_meta(get_the_ID(), '_category', true);
@@ -1055,11 +1060,37 @@ add_shortcode('lunart_gallery', 'lunart_gallery_shortcode');
  * Customize the main query for gallery items
  */
 function lunart_pre_get_posts($query) {
-    if (!is_admin() && $query->is_main_query()) {
-        if (is_post_type_archive('gallery_item')) {
-            $query->set('posts_per_page', 12);
-            $query->set('orderby', 'date');
-            $query->set('order', 'DESC');
+    if (is_admin() || !$query->is_main_query()) {
+        return;
+    }
+
+    $is_gallery_archive = is_post_type_archive('gallery_item');
+    $is_gallery_tax = is_tax('gallery_category');
+
+    if ($is_gallery_archive || $is_gallery_tax) {
+        // Default ordering
+        $query->set('orderby', 'date');
+        $query->set('order', 'DESC');
+
+        // Per-page control via GET param `pp` (1–48, default 12)
+        $pp = isset($_GET['pp']) ? intval($_GET['pp']) : 12;
+        if ($pp < 1) { $pp = 12; }
+        if ($pp > 48) { $pp = 48; }
+        $query->set('posts_per_page', $pp);
+
+        // Allow filtering by gallery_category on the post type archive via GET param `gallery_category`
+        if ($is_gallery_archive && !empty($_GET['gallery_category'])) {
+            $raw = sanitize_text_field(wp_unslash($_GET['gallery_category']));
+            $slugs = array_filter(array_map('trim', explode(',', $raw)));
+            if (!empty($slugs)) {
+                $tax_query = (array) $query->get('tax_query');
+                $tax_query[] = array(
+                    'taxonomy' => 'gallery_category',
+                    'field'    => 'slug',
+                    'terms'    => $slugs,
+                );
+                $query->set('tax_query', $tax_query);
+            }
         }
     }
 }
