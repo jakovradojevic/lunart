@@ -190,6 +190,16 @@ Za podršku i pitanja:
 
 ## Changelog
 
+### v1.3.0
+- Implementirana kompletna podrška za Open Graph (OG) i Twitter Cards metapodatke.
+- Dinamički OG tagovi za pojedinačne objave, arhive, taksonomije i početnu stranu.
+- Automatsko povlačenje slika iz najnovijih projekata za kategorije galerije.
+- Fallback sistem za slike (Customizer logo, Site Identity logo ili placeholder).
+- Čišćenje metapodataka od HTML tagova i shortcode-ova.
+
+### v1.2.1
+- Manje ispravke i optimizacije.
+
 ### v1.0.0
 - Inicijalna verzija
 - Demo content importer
@@ -249,32 +259,23 @@ Napomena: Ako ste prethodno koristili stare „Logo Options“, one su sada tran
 
 ## Gde smo stali / Poslednje izmene
 
-Datum: 2025-08-20 19:34
+Datum: 2026-01-22 16:15
 
 Sažetak najskorijih izmena i na čemu smo poslednje radili:
 
-- Logo upravljanje
-  - Sve prilagođene Logo opcije su premeštene pod Appearance > Customize > Site Identity (title_tagline). Pojedinačna "Logo Options" sekcija je uklonjena.
-  - Funkcija za renderovanje logotipa (lunart_get_logo_html) sada radi po prioritetu: (1) legacy logo slika ako je podešena (image/both), (2) WordPress Custom Logo (Site Identity), (3) fallback tekstualni logo (naslov/podnaslov sajta).
-  - Link ka početnoj je sada deo samog logotipa u funkciji, a ne spolja u header-u.
-  - Stilovi logotipa se ubacuju sa prioritetom 20 kako bi pouzdano primenili vrednosti iz Customizer-a.
+- Unapređenje deljenja na društvenim mrežama
+  - Dodata funkcija `lunart_og_tags()` u `inc/template-functions.php` koja generiše Open Graph i Twitter Cards tagove.
+  - Dinamički naslovi, opisi i slike za sve tipove sadržaja (postovi, stranice, usluge, projekti).
+  - Specijalna logika za `gallery_category` koja povlači sliku iz najnovijeg projekta u toj kategoriji.
+  - Fallback mehanizam za slike (Customizer logo -> Site Identity logo -> placeholder slika).
+  - Svi tagovi se čiste od HTML koda i shortcode-ova pre prikaza.
 
-- Header i Footer
-  - Header: uklonjen je spoljašnji <a> oko logotipa jer ga generiše sama funkcija lunart_get_logo_html().
-  - Footer: dodat je widgetizovani Footer (Appearance > Widgets > Footer). Ako dodate widgete/blokove, ceo footer je editabilan. Ako nema widgeta, prikazuje se podrazumevani footer sa poslovnim podacima i kontaktom.
-  - Copyright podržava {year}, [year] ili {{year}} kao placeholder za tekuću godinu.
-  - Dodata je funkcija za ispis društvenih mreža (lunart_get_social_media_html) i njena upotreba u footer-u.
-
-- Demo Importer
-  - Dodata je opcija za kreiranje Contact Form 7 forme („Kontakt forma (Lunart)“) i automatsko ubacivanje shortcode-a na stranicu „Kontakt“ (ako plugin CF7 postoji i strana postoji).
-
-- Dokumentacija
-  - README proširen sekcijom "Gde se uređuje sadržaj" sa uputstvima za Početnu stranicu, logotip, footer, menije, CPT-ove, društvene mreže i kontakt podatke.
+- Verzija teme
+  - Tema je ažurirana na verziju **1.3.0** u `style.css` i `README.md`.
 
 Šta je sledeće (predlog):
-- Proveriti da li su svi stari korisnički sajtovi bez Custom Logo-a i dalje pravilno prikazani zahvaljujući legacy logici (testovati image/both/text varijante). 
-- Po potrebi dodati još footer widget zona (npr. Footer 2, Footer 3) i grid raspored.
-
+- Testirati prikaz na različitim platformama (Facebook Debugger, Twitter Card Validator).
+- Razmisliti o dodavanju Schema.org JSON-LD markupa za bolji SEO.
 
 ## Gutenberg blokovi (Početna)
 
